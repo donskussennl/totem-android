@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Het meldingsicoon: het ringenmotief van de Totem.
+
+    Android tekent meldingsiconen altijd als silhouet in één kleur, dus dit is
+    bewust een vectorvorm zonder kleurverloop.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFFFF">
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,3.5c-4.7,0 -8.5,3.8 -8.5,8.5s3.8,8.5 8.5,8.5s8.5,-3.8 8.5,-8.5S16.7,3.5 12,3.5zM12,19c-3.9,0 -7,-3.1 -7,-7s3.1,-7 7,-7s7,3.1 7,7S15.9,19 12,19z" />
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,7c-2.8,0 -5,2.2 -5,5s2.2,5 5,5s5,-2.2 5,-5S14.8,7 12,7zM12,15.5c-1.9,0 -3.5,-1.6 -3.5,-3.5s1.6,-3.5 3.5,-3.5s3.5,1.6 3.5,3.5S13.9,15.5 12,15.5z" />
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,10.25A1.75,1.75 0,1 0,12 13.75A1.75,1.75 0,1 0,12 10.25z" />
+</vector>

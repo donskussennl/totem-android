@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Totem</string>
+    <string name="accessibility_label">Totem — apps blokkeren</string>
+    <string name="accessibility_description">Totem kijkt welke app je opent en toont een blokkadescherm zolang een focusmodus loopt. Er wordt niets gelezen of bewaard van wat er op je scherm staat.</string>
+    <string name="widget_label">Totem</string>
+    <string name="widget_description">Laat zien of er een blokkade loopt.</string>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Niets meenemen in een back-up.
+
+    Zou de pincode of de gekoppelde tag in een back-up staan, dan kon je een
+    lopende blokkade omzeilen door de app opnieuw te installeren en de back-up
+    terug te zetten met een oudere stand.
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="totem.store.xml" />
+    <exclude domain="sharedpref" path="totem.pin.xml" />
+</full-backup-content>

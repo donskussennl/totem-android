@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="venster_achtergrond">#FFFAFAFA</color>
+    <color name="schild_achtergrond">#FF0A0A0A</color>
+    <color name="totem_blauw">#FF2B40FF</color>
+    <color name="widget_achtergrond">#FF141414</color>
+    <color name="icoon_achtergrond">#FFF3EFE7</color>
+</resources>

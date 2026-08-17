@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Compose tekent alles zelf; dit thema hoeft alleen te zorgen dat het
+         venster geen eigen balk of achtergrond meebrengt. -->
+    <style name="Theme.Totem" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/venster_achtergrond</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- Het blokkadescherm is altijd donker, ongeacht de systeeminstelling. -->
+    <style name="Theme.Totem.Shield" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/schild_achtergrond</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+</resources>

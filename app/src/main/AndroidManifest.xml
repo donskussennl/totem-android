@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- NFC: het hart van Totem. -->
+    <uses-permission android:name="android.permission.NFC" />
+
+    <!-- Het blokkadescherm bovenop een andere app tonen. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- De doorlopende melding en de teller tijdens een blokkade. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Schema's die op de minuut aanslaan, ook in de slaapstand. -->
+    <!-- Bewust alleen SCHEDULE_EXACT_ALARM en niet USE_EXACT_ALARM: die tweede
+         is bij Google Play voorbehouden aan wekker- en agenda-apps, en een
+         focus-app komt daar niet doorheen. De gebruiker geeft de toestemming
+         dus zelf, en de instellingen laten zien wanneer dat nog moet. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Nodig om de lijst met te blokkeren apps te kunnen tonen. -->
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Zonder NFC heeft Totem geen zin, maar we blokkeren de installatie niet:
+         zo kun je de app ook op een tablet bekijken. -->
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".TotemApplication"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Totem"
+        tools:targetApi="34">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Totem"
+            android:windowSoftInputMode="adjustResize">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Tikken terwijl de app dicht is: de tag verwijst naar
+                 https://tap2totem.app/t/<uid>. Vervang het domein door je eigen
+                 en zet er een assetlinks.json op, anders opent Android eerst de
+                 browser. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="tap2totem.app"
+                    android:pathPrefix="/t/"
+                    android:scheme="https" />
+            </intent-filter>
+
+            <!-- Voor testen zonder domein: totem://t/<uid> -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="totem" />
+            </intent-filter>
+
+            <!-- En nu hetzelfde, maar dan voor NFC.
+                 Dit is een valkuil die makkelijk te missen is: als je op een
+                 link tíkt stuurt Android ACTION_VIEW, maar leest hij dezelfde
+                 link van een NFC-tag, dan stuurt hij NDEF_DISCOVERED. Twee
+                 verschillende berichten voor hetzelfde adres. Vang je alleen
+                 het eerste af, dan gebeurt er bij een tik helemaal niets en
+                 meldt het systeem "Lege tag". -->
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:host="tap2totem.app"
+                    android:pathPrefix="/t/"
+                    android:scheme="https" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="totem" />
+            </intent-filter>
+        </activity>
+
+        <!-- Het scherm dat over een geblokkeerde app komt. Eigen taak, zodat
+             het niet in de stapel van de gewone app terechtkomt. -->
+        <activity
+            android:name=".shield.BlockActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:noHistory="false"
+            android:taskAffinity="nl.totem.app.shield"
+            android:theme="@style/Theme.Totem.Shield" />
+
+        <!-- De waakhond die ziet welke app naar voren komt.
+             Exported moet hier true zijn: het systeem bindt deze dienst, en
+             system_server is een ander proces. Met false blijft de dienst
+             onzichtbaar in de toegankelijkheidsinstellingen en blokkeert de app
+             stilzwijgend niets. -->
+        <service
+            android:name=".shield.TotemAccessibilityService"
+            android:exported="true"
+            android:label="@string/accessibility_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- De doorlopende melding met de teller. -->
+        <service
+            android:name=".shield.SessionService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Houdt een lopende focusblokkade actief en toont de teller." />
+        </service>
+
+        <!-- Wekkers, herstarts en tijdwijzigingen. -->
+        <receiver
+            android:name=".schedule.ScheduleReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- De widget op het startscherm. -->
+        <receiver
+            android:name=".widget.TotemWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/totem_widget_info" />
+        </receiver>
+    </application>
+</manifest>

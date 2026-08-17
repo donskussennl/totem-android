@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Alleen voor debug-builds.
+
+    De debug-versie draagt een eigen naam, zodat je hem in je app-lijst nooit
+    verwart met een andere build of een ander project. Het pakket verschilt al
+    (`nl.totem.app.debug` tegenover `nl.totem.app`), maar dat zie je nergens —
+    de naam onder het icoon wel.
+-->
+<resources>
+    <string name="app_name">Totem debug</string>
+</resources>
