@@ -24,20 +24,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import nl.totem.app.notify.NotificationService
 import nl.totem.app.shield.ShieldService
@@ -63,16 +58,9 @@ fun OnboardingScreen(
     val context = LocalContext.current
 
     // Bij terugkeer uit de systeeminstellingen opnieuw meten. Zonder deze teller
-    // blijft er "Uit" staan terwijl je hem net hebt aangezet.
-    var meting by remember { mutableIntStateOf(0) }
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) meting++
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
+    // blijft er "Uit" staan terwijl je hem net hebt aangezet. Zelfde helper als
+    // het instellingenscherm gebruikt.
+    val meting = terugkeerTeller()
 
     // De prominente kennisgeving staat vóór de toestemming. Pas na 'Ik ga
     // akkoord' gaat de gebruiker door naar de Android-instelling.

@@ -13,6 +13,14 @@ import androidx.compose.material.icons.filled.LaptopMac
 import androidx.compose.material.icons.filled.LocalFlorist
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -92,4 +100,30 @@ fun formatDuration(seconds: Long): String {
     val h = minutes / 60
     val m = minutes % 60
     return if (h > 0) "${h}u ${m}m" else "${m}m"
+}
+
+
+/**
+ * Een teller die omhoog gaat elke keer dat dit scherm weer op de voorgrond komt.
+ *
+ * Nodig voor alles wat buiten de app om kan veranderen: de toestemmingen staan
+ * in de systeeminstellingen, en Compose heeft geen enkele reden om die opnieuw
+ * te lezen als de gebruiker terugkomt. Zet de uitkomst als sleutel op een
+ * `remember`, dan wordt er wél opnieuw gemeten:
+ *
+ *     val meting = terugkeerTeller()
+ *     val aan = remember(meting) { ShieldService.isAccessibilityEnabled(context) }
+ */
+@Composable
+fun terugkeerTeller(): Int {
+    var meting by remember { mutableIntStateOf(0) }
+    val eigenaar = LocalLifecycleOwner.current
+    DisposableEffect(eigenaar) {
+        val kijker = LifecycleEventObserver { _, gebeurtenis ->
+            if (gebeurtenis == Lifecycle.Event.ON_RESUME) meting++
+        }
+        eigenaar.lifecycle.addObserver(kijker)
+        onDispose { eigenaar.lifecycle.removeObserver(kijker) }
+    }
+    return meting
 }

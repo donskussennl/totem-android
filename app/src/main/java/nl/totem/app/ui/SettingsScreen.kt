@@ -65,15 +65,18 @@ fun SettingsScreen(
     var pincodeScherm by remember { mutableStateOf<PinPurpose?>(null) }
     var meldingen by remember { mutableStateOf(NotificationService.isEnabled) }
 
-    // Bij elke keer openen opnieuw kijken; de gebruiker kan net terug zijn uit
-    // de systeeminstellingen.
     // Ook hier eerst de prominente kennisgeving; dit is de tweede plek waar
     // de gebruiker naar de Toegankelijkheidsinstelling kan doorlopen.
     var toonKennisgeving by remember { mutableStateOf(false) }
 
-    val toegankelijkheid = ShieldService.isAccessibilityEnabled(context)
-    val overlay = ShieldService.canDrawOverlays(context)
-    val exacteWekkers = ShieldService.canScheduleExactAlarms(context)
+    // De toestemmingen worden buiten de app omgezet. Zonder deze teller blijft
+    // hier 'Aan' staan terwijl de gebruiker de schakelaar net heeft uitgezet:
+    // Compose ziet geen reden om opnieuw te lezen. De teller loopt op zodra dit
+    // scherm weer op de voorgrond komt, en dwingt zo een nieuwe meting af.
+    val meting = terugkeerTeller()
+    val toegankelijkheid = remember(meting) { ShieldService.isAccessibilityEnabled(context) }
+    val overlay = remember(meting) { ShieldService.canDrawOverlays(context) }
+    val exacteWekkers = remember(meting) { ShieldService.canScheduleExactAlarms(context) }
 
     Scaffold(
         topBar = {
