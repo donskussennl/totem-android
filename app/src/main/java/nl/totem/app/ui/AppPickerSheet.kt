@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -99,6 +100,42 @@ fun AppPickerSheet(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             )
+
+            // Alles in één keer aan of uit. Werkt op wat er zichtbaar is, dus
+            // met een zoekterm actief selecteer je alleen die treffers -- zo
+            // kun je bijvoorbeeld in twee tikken alle Google-apps pakken.
+            if (zichtbaar.isNotEmpty()) {
+                val zichtbarePakketten = zichtbaar.map { it.packageName }.toSet()
+                val allesAan = keuze.containsAll(zichtbarePakketten)
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        onClick = {
+                            keuze = if (allesAan) keuze - zichtbarePakketten
+                                    else keuze + zichtbarePakketten
+                        }
+                    ) {
+                        Text(
+                            if (allesAan) "Alles uitzetten" else
+                                if (zoek.isBlank()) "Alles selecteren"
+                                else "Alle ${zichtbaar.size} treffers selecteren"
+                        )
+                    }
+
+                    Spacer(Modifier.weight(1f))
+
+                    if (keuze.isNotEmpty()) {
+                        TextButton(onClick = { keuze = emptySet() }) {
+                            Text("Selectie wissen")
+                        }
+                    }
+                }
+            }
 
             if (apps == null) {
                 Box(

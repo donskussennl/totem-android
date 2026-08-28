@@ -1,7 +1,5 @@
 package nl.totem.app.ui
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.totem.app.data.PinService
-import nl.totem.app.nfc.TapLink
+import nl.totem.app.data.SharedStore
 import nl.totem.app.notify.NotificationService
 import nl.totem.app.shield.ShieldService
 import nl.totem.app.store.AppStore
@@ -70,6 +68,10 @@ fun SettingsScreen(
 
     // Bij elke keer openen opnieuw kijken; de gebruiker kan net terug zijn uit
     // de systeeminstellingen.
+    // Ook hier eerst de prominente kennisgeving; dit is de tweede plek waar
+    // de gebruiker naar de Toegankelijkheidsinstelling kan doorlopen.
+    var toonKennisgeving by remember { mutableStateOf(false) }
+
     val toegankelijkheid = ShieldService.isAccessibilityEnabled(context)
     val overlay = ShieldService.canDrawOverlays(context)
     val exacteWekkers = ShieldService.canScheduleExactAlarms(context)
@@ -99,7 +101,13 @@ fun SettingsScreen(
                 titel = "Toegankelijkheid",
                 uitleg = "Nodig om te zien welke app je opent. Zonder dit kan Totem niets blokkeren.",
                 aan = toegankelijkheid,
-                onClick = { ShieldService.openAccessibilitySettings(context) }
+                onClick = {
+                    if (SharedStore.accessibilityConsent) {
+                        ShieldService.openAccessibilitySettings(context)
+                    } else {
+                        toonKennisgeving = true
+                    }
+                }
             )
             ToestemmingRij(
                 titel = "Over andere apps tekenen",
@@ -127,36 +135,6 @@ fun SettingsScreen(
                 InfoRij("Naam", it.name)
                 InfoRij("Tag", it.tagUID)
                 InfoRij("Gekoppeld", datum(it.pairedAt))
-
-                // Zonder deze link op de tag doet een tik niets zolang Totem
-                // dicht is: Android weet dan niet welke app hij moet openen.
-                Text(
-                    "Op de tag schrijven",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 14.dp)
-                )
-                val link = TapLink.url(it.tagUID)
-                Text(
-                    text = link,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            val clip = context.getSystemService(ClipboardManager::class.java)
-                            clip?.setPrimaryClip(ClipData.newPlainText("Totem", link))
-                        }
-                        .padding(vertical = 6.dp)
-                )
-                Text(
-                    "Tik om te kopiëren. Schrijf dit adres als URL-record op je Totem — " +
-                        "bijvoorbeeld met de app NFC Tools — en dan opent een tik de app, " +
-                        "ook als Totem dicht is.",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 20.dp))
@@ -251,6 +229,16 @@ fun SettingsScreen(
                 modifier = Modifier.padding(bottom = 40.dp)
             )
         }
+    }
+
+    if (toonKennisgeving) {
+        ToegankelijkheidKennisgeving(
+            onAkkoord = {
+                toonKennisgeving = false
+                ShieldService.openAccessibilitySettings(context)
+            },
+            onNietAkkoord = { toonKennisgeving = false }
+        )
     }
 
     if (bevestigOntkoppel) {

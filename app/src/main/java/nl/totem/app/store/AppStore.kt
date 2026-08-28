@@ -112,6 +112,19 @@ class AppStore(app: Application) : AndroidViewModel(app) {
     // MARK: - Koppelen
 
     fun pairTotem(name: String = "Mijn Totem") {
+        // Zonder Totem koppelen, voor App Review en Play Review.
+        if (name.trim().uppercase() == PairedTotem.DEMO_CODE) {
+            val demo = PairedTotem(
+                tagUID = "DEMO",
+                name = "Demo Totem",
+                pairedAt = System.currentTimeMillis(),
+                isDemo = true,
+            )
+            _totem.value = demo
+            SharedStore.totem = demo
+            return
+        }
+
         _scanRequest.value = ScanRequest(
             purpose = ScanPurpose.PAIR,
             prompt = "Houd je telefoon tegen je Totem om te koppelen",
@@ -170,6 +183,10 @@ class AppStore(app: Application) : AndroidViewModel(app) {
             _errorMessage.value = TotemError.NotAuthorized.text
             return
         }
+        if (_totem.value?.isDemo == true) {
+            SessionEngine.start(context, mode, bySchedule = false)
+            return
+        }
         _scanRequest.value = ScanRequest(
             purpose = ScanPurpose.START,
             prompt = "Tik je Totem aan om ‘${mode.name}’ te starten",
@@ -180,6 +197,10 @@ class AppStore(app: Application) : AndroidViewModel(app) {
     /** Stopt de lopende sessie. Kan alléén door de Totem opnieuw te tikken. */
     fun endSession() {
         if (_session.value == null) return
+        if (_totem.value?.isDemo == true) {
+            SessionEngine.stop(context, bySchedule = false)
+            return
+        }
         _scanRequest.value = ScanRequest(
             purpose = ScanPurpose.STOP,
             prompt = "Tik je Totem aan om te ontgrendelen"
@@ -191,8 +212,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
      * ons met de link van de tag. Dan hoeft er niet nog eens gescand te worden.
      */
     fun handleTapLink(uid: String) {
-        val known = _totem.value
-        if (known == null) {
+        if (_totem.value == null) {
             // Nog niets gekoppeld. Bewust níét koppelen op grond van deze link:
             // iedereen kan een tag beschrijven met dit adres. Koppelen gaat
             // alleen via een echte scan, want alleen daar lezen we de
@@ -201,12 +221,17 @@ class AppStore(app: Application) : AndroidViewModel(app) {
                 "Koppel eerst je Totem in de app; houd hem dan tegen de telefoon."
             return
         }
-        if (!known.tagUID.equals(uid, ignoreCase = true)) {
-            _errorMessage.value = TotemError.WrongTag.text
-            return
-        }
+        // Elke Totem mag bedienen, net als op iOS -- er wordt hier bewust niet
+        // vergeleken met de gekoppelde Totem.
+        //
+        // Maar STOPPEN gaat niet op grond van deze link. Een adres is tekst en
+        // bewijst niet dat de chip tegen de telefoon gehouden is; wie het
+        // bewaart als bladwijzer zou zijn eigen blokkade kunnen opheffen.
+        // Daarom vragen we alsnog om een echte scan, en die loopt wél langs de
+        // handtekeningcontrole. Starten mag wel meteen: dat valt niet te
+        // misbruiken.
         if (_session.value != null) {
-            SessionEngine.stop(context, bySchedule = false)
+            endSession()
         } else {
             _awaitingModeChoice.value = true
         }
@@ -261,19 +286,13 @@ class AppStore(app: Application) : AndroidViewModel(app) {
             ScanPurpose.PAIR -> koppel(uid, payload, request.name ?: pairingName)
 
             ScanPurpose.START -> {
-                if (!matchesPairedTotem(uid)) {
-                    _errorMessage.value = TotemError.WrongTag.text
-                    return
-                }
+                if (!accepteerTotem(uid, payload)) return
                 val mode = request.modeID?.let { mode(it) } ?: return
                 SessionEngine.start(context, mode, bySchedule = false)
             }
 
             ScanPurpose.STOP -> {
-                if (!matchesPairedTotem(uid)) {
-                    _errorMessage.value = TotemError.WrongTag.text
-                    return
-                }
+                if (!accepteerTotem(uid, payload)) return
                 SessionEngine.stop(context, bySchedule = false)
             }
 
@@ -289,10 +308,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
             koppel(uid, payload, pairingName)
             return
         }
-        if (!matchesPairedTotem(uid)) {
-            _errorMessage.value = TotemError.WrongTag.text
-            return
-        }
+        if (!accepteerTotem(uid, payload)) return
         if (_session.value != null) {
             SessionEngine.stop(context, bySchedule = false)
         } else {
@@ -331,8 +347,39 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         SharedStore.totem = paired
     }
 
+    /** Alleen de gekoppelde Totem mag bedienen? Zie accepteerTotem(). */
+    private val ALLEEN_EIGEN_TOTEM = false
+
     private fun matchesPairedTotem(uid: String): Boolean =
         _totem.value?.tagUID?.equals(uid, ignoreCase = true) == true
+
+    /**
+     * Mag deze Totem de blokkade bedienen?
+     *
+     * Standaard elke echte Totem, gelijk aan iOS: daar staat in de code
+     * "activeren en deactiveren kan met elke Totem". Handig als je er twee
+     * hebt, of er een deelt binnen het gezin. De echtheidscontrole blijft
+     * gewoon staan, dus een willekeurige NFC-tag werkt niet.
+     *
+     * Zet ALLEEN_EIGEN_TOTEM op true als uitsluitend de gekoppelde Totem mag
+     * bedienen. Strenger, maar dan sta je met een lopende blokkade voor niets
+     * als je je eigen Totem niet bij je hebt.
+     */
+    private fun accepteerTotem(uid: String, payload: ByteArray?): Boolean {
+        if (ALLEEN_EIGEN_TOTEM) {
+            if (matchesPairedTotem(uid)) return true
+            _errorMessage.value = TotemError.WrongTag.text
+            return false
+        }
+
+        val uidBytes = runCatching {
+            uid.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        }.getOrDefault(ByteArray(0))
+
+        if (TotemAuth.isGenuine(uidBytes, payload)) return true
+        _errorMessage.value = TotemError.NotATotem.text
+        return false
+    }
 
     // MARK: - Noodontgrendeling
 

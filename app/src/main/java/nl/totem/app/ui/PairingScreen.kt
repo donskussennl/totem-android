@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Nfc
 import androidx.compose.material3.Button
+import nl.totem.app.model.PairedTotem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -139,7 +140,10 @@ fun PairingScreen(store: AppStore) {
 
         Button(
             onClick = { store.pairTotem(naam.ifBlank { "Mijn Totem" }) },
-            enabled = heeftNfc && nfcAan,
+            // Met het codewoord kan er zonder NFC gekoppeld worden, zodat
+            // een reviewer op een toestel zonder NFC toch verder komt.
+            enabled = (heeftNfc && nfcAan) ||
+                naam.trim().uppercase() == PairedTotem.DEMO_CODE,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)

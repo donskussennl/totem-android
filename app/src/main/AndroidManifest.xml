@@ -22,10 +22,12 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <!-- Nodig om de lijst met te blokkeren apps te kunnen tonen. -->
-    <uses-permission
-        android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="QueryAllPackagesPermission" />
+    <!-- QUERY_ALL_PACKAGES is bewust NIET aangevraagd. Google staat die alleen
+         toe voor een handvol app-soorten (antivirus, bestandsbeheer, browsers)
+         en een focus-app hoort daar niet bij; aanvragen levert een afwijzing op.
+         De <queries>-tag hieronder geeft precies wat we nodig hebben: alle apps
+         met een pictogram in het startscherm. InstalledApps gebruikt daarvoor
+         queryIntentActivities, en dat werkt hiermee gewoon. -->
 
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -67,17 +69,18 @@
             </intent-filter>
 
             <!-- Tikken terwijl de app dicht is: de tag verwijst naar
-                 https://tap2totem.app/t/<uid>. Vervang het domein door je eigen
+                 https://app.tap2totem.com/nl/nfc/<uid>/<tag>/<sig>. Vervang het domein door je eigen
                  en zet er een assetlinks.json op, anders opent Android eerst de
                  browser. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:host="tap2totem.app"
-                    android:pathPrefix="/t/"
-                    android:scheme="https" />
+                <data android:scheme="https" android:host="app.tap2totem.com" />
+                <data android:pathPrefix="/nfc/" />
+                <data android:pathPrefix="/nl/nfc/" />
+                <data android:pathPrefix="/verify" />
+                <data android:pathPrefix="/t/" />
             </intent-filter>
 
             <!-- Voor testen zonder domein: totem://t/<uid> -->
@@ -98,10 +101,11 @@
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data
-                    android:host="tap2totem.app"
-                    android:pathPrefix="/t/"
-                    android:scheme="https" />
+                <data android:scheme="https" android:host="app.tap2totem.com" />
+                <data android:pathPrefix="/nfc/" />
+                <data android:pathPrefix="/nl/nfc/" />
+                <data android:pathPrefix="/verify" />
+                <data android:pathPrefix="/t/" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />

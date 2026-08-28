@@ -13,8 +13,9 @@ import android.nfc.tech.NfcA
  */
 object TagMemory {
 
-    /** Zoveel bytes hebben we nodig: 8 kop + 64 handtekening. */
-    private const val WANTED = 80
+    /** Het hele gebruikersgeheugen van een NTAG213: 36 pagina's van 4 bytes.
+     *  De NDEF-URL met handtekening is rond de 120 bytes, dus 80 was te weinig. */
+    private const val WANTED = 144
 
     fun read(tag: Tag): ByteArray? {
         MifareUltralight.get(tag)?.let { return readUltralight(it) }

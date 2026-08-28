@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import nl.totem.app.data.SharedStore
@@ -126,8 +127,30 @@ object ShieldService {
     fun isReady(context: Context): Boolean =
         isAccessibilityEnabled(context) && canDrawOverlays(context)
 
+    /**
+     * Opent de lijst met toegankelijkheidsdiensten, met Totem uitgelicht.
+     *
+     * Aanzetten kan een app niet zelf: daarvoor is WRITE_SECURE_SETTINGS
+     * nodig, en dat recht krijgt alleen een systeem-app. Het enige wat we
+     * kunnen doen is de gebruiker zo dicht mogelijk bij de schakelaar
+     * afleveren.
+     *
+     * De twee extra's hieronder zijn de sleutels waarmee de Instellingen-app
+     * intern naar een rij springt. Ze staan niet in de documentatie, dus ze
+     * kunnen bij een Android-versie zomaar verdwijnen; op Pixel en Samsung
+     * lichten ze de rij 'Totem' op, elders worden ze genegeerd. Dat is
+     * ongevaarlijk: dan opent gewoon de normale lijst, precies zoals eerst.
+     */
     fun openAccessibilitySettings(context: Context) {
-        open(context, Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        val dienst = ComponentName(context, TotemAccessibilityService::class.java)
+            .flattenToString()
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            .putExtra(":settings:fragment_args_key", dienst)
+            .putExtra(
+                ":settings:show_fragment_args",
+                Bundle().apply { putString(":settings:fragment_args_key", dienst) }
+            )
+        open(context, intent)
     }
 
     fun openOverlaySettings(context: Context) {

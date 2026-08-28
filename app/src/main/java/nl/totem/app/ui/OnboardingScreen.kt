@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import nl.totem.app.data.SharedStore
 import nl.totem.app.notify.NotificationService
 import nl.totem.app.shield.ShieldService
 
@@ -72,6 +74,10 @@ fun OnboardingScreen(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
+
+    // De prominente kennisgeving staat vóór de toestemming. Pas na 'Ik ga
+    // akkoord' gaat de gebruiker door naar de Android-instelling.
+    var toonKennisgeving by remember { mutableStateOf(false) }
 
     val toegankelijkheid = remember(meting) { ShieldService.isAccessibilityEnabled(context) }
     val overlay = remember(meting) { ShieldService.canDrawOverlays(context) }
@@ -110,12 +116,28 @@ fun OnboardingScreen(
             titel = "Toegankelijkheid",
             aan = toegankelijkheid,
             verplicht = true,
-            waarom = "Hiermee ziet Totem wélke app je opent. Zonder dit kan er niets " +
-                "geblokkeerd worden.",
-            waar = "Zoek in de lijst onder ‘Geïnstalleerde apps’ of ‘Gedownloade apps’ " +
-                "naar Totem, tik erop en zet de schakelaar aan.",
+            // Dit is de 'prominente kennisgeving' die Google Play verlangt bij
+            // gebruik van de AccessibilityServices API. Drie dingen moeten
+            // erin staan: dat we die dienst gebruiken, wat hij uitleest, en
+            // waarvoor. De laatste zin gaat over verzamelen en delen -- daar
+            // vraagt de beoordeling apart naar.
+            waarom = "Totem gebruikt de Toegankelijkheidsservice van Android om te zien " +
+                "welke app je op de voorgrond opent. Alleen zo kan Totem een " +
+                "geblokkeerde app herkennen en het blokkadescherm tonen. Dit gebeurt " +
+                "volledig op je eigen toestel: er wordt niets opgeslagen en niets " +
+                "verstuurd naar ons of naar derden.",
+            waar = "Op de meeste toestellen springt de lijst meteen naar Totem. Zo " +
+                "niet, zoek hem dan onder ‘Geïnstalleerde apps’ of ‘Gedownloade " +
+                "apps’. Tik erop en zet de schakelaar aan.",
             knop = "Toegankelijkheid openen",
-            onClick = { ShieldService.openAccessibilitySettings(context) }
+            onClick = {
+                // Al eerder akkoord gegaan? Dan hoeft de kennisgeving niet opnieuw.
+                if (SharedStore.accessibilityConsent) {
+                    ShieldService.openAccessibilitySettings(context)
+                } else {
+                    toonKennisgeving = true
+                }
+            }
         )
 
         // Deze valkuil kost anders een half uur zoeken.
@@ -203,6 +225,16 @@ fun OnboardingScreen(
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp, bottom = 40.dp)
+        )
+    }
+
+    if (toonKennisgeving) {
+        ToegankelijkheidKennisgeving(
+            onAkkoord = {
+                toonKennisgeving = false
+                ShieldService.openAccessibilitySettings(context)
+            },
+            onNietAkkoord = { toonKennisgeving = false }
         )
     }
 }

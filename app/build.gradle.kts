@@ -13,7 +13,7 @@ android {
         applicationId = "nl.totem.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
+        versionCode = 4
         versionName = "1.0"
     }
 
@@ -25,6 +25,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // Foutopsporingssymbolen voor de native bibliotheken die via
+            // AndroidX meekomen (graphics.path en datastore). Ze gaan alleen
+            // mee in de bundel naar Play, niet naar het toestel -- de app
+            // wordt er dus niet groter van. Zonder dit zijn native crashes in
+            // Play Console onleesbare adressen.
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
         }
         debug {
             applicationIdSuffix = ".debug"

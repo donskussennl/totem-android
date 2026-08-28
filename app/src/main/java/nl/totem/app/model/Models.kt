@@ -12,10 +12,21 @@ data class PairedTotem(
     val tagUID: String,
     val name: String,
     /** Epoch-milliseconden; op Android bewaren we tijden als Long. */
-    val pairedAt: Long
+    val pairedAt: Long,
+    /** Gekoppeld met het codewoord, zonder echte tag. Zie DEMO_CODE. */
+    val isDemo: Boolean = false
 ) {
     val shortUID: String
         get() = if (tagUID.length > 8) tagUID.take(8) + "…" else tagUID
+
+    companion object {
+        /**
+         * App Review en Play Review hebben geen Totem. Typen ze dit woord in
+         * het naamveld bij het koppelen, dan koppelt de app zonder tag en
+         * gaan starten en stoppen met een knop. Zelfde codewoord als op iOS.
+         */
+        const val DEMO_CODE = "APPLEREVIEW"
+    }
 }
 
 /**
@@ -129,6 +140,9 @@ data class SessionLog(
 sealed class TotemError(val text: String?) : Exception(text) {
     data object WrongTag :
         TotemError("Dit is niet jouw Totem. Houd je eigen Totem tegen de telefoon.")
+
+    data object NotATotem :
+        TotemError("Dit is geen echte Totem.")
 
     data object NfcUnavailable :
         TotemError("NFC is niet beschikbaar op dit toestel.")

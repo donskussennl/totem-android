@@ -34,6 +34,8 @@ object SharedStore {
     private const val KEY_NOTIFY = "totem.notify"
     private const val KEY_DISMISSED = "totem.dismissed"
     private const val KEY_ONBOARDED = "totem.onboarded"
+    private const val KEY_A11Y_CONSENT = "totem.a11y.consent"
+    private const val KEY_A11Y_CONSENT_AT = "totem.a11y.consent.at"
 
     val json = Json {
         ignoreUnknownKeys = true
@@ -117,6 +119,26 @@ object SharedStore {
     var notificationsEnabled: Boolean
         get() = prefs.getBoolean(KEY_NOTIFY, true)
         set(value) = prefs.edit().putBoolean(KEY_NOTIFY, value).apply()
+
+    /**
+     * Of de gebruiker de prominente kennisgeving over de
+     * Toegankelijkheidsservice heeft gezien en aangetikt.
+     *
+     * Wordt alleen op waar gezet door de knop 'Ik ga akkoord' in
+     * [nl.totem.app.ui.ToegankelijkheidKennisgeving]. Het tijdstip staat er
+     * apart bij: zo is bij een beoordeling na te gaan wanneer er toestemming
+     * is gegeven.
+     */
+    var accessibilityConsent: Boolean
+        get() = prefs.getBoolean(KEY_A11Y_CONSENT, false)
+        set(value) = prefs.edit()
+            .putBoolean(KEY_A11Y_CONSENT, value)
+            .putLong(KEY_A11Y_CONSENT_AT, if (value) System.currentTimeMillis() else 0L)
+            .apply()
+
+    /** Wanneer die toestemming is gegeven, of 0 als dat niet is gebeurd. */
+    val accessibilityConsentAt: Long
+        get() = prefs.getLong(KEY_A11Y_CONSENT_AT, 0L)
 
     var hasOnboarded: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDED, false)

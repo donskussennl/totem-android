@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -159,6 +163,7 @@ class BlockActivity : ComponentActivity() {
 
 @Composable
 private fun BlockScreen(modeName: String, startedAt: Long) {
+    val context = LocalContext.current
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     LaunchedEffect(Unit) {
@@ -208,6 +213,37 @@ private fun BlockScreen(modeName: String, startedAt: Long) {
                     color = Color(0xFF6E6E6E),
                     fontSize = 17.sp,
                     modifier = Modifier.padding(top = 24.dp)
+                )
+            }
+
+            // Zonder deze knop zit je vast op dit scherm tot je zelf de
+            // thuisknop vindt. iOS heeft hem al ("Terug naar het leven").
+            //
+            // Let op: gewoon finish() werkt niet -- dan val je terug in de
+            // geblokkeerde app en verschijnt dit scherm meteen opnieuw. We
+            // sturen de gebruiker daarom expliciet naar het startscherm.
+            Button(
+                onClick = {
+                    val thuis = Intent(Intent.ACTION_MAIN).apply {
+                        addCategory(Intent.CATEGORY_HOME)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    context.startActivity(thuis)
+                    (context as? ComponentActivity)?.finish()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color(0xFF0A0A0A)
+                ),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.padding(top = 36.dp)
+            ) {
+                Text(
+                    "Terug naar het leven",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                 )
             }
         }
