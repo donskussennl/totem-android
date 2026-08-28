@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.totem.app.data.PinService
-import nl.totem.app.data.SharedStore
 import nl.totem.app.notify.NotificationService
 import nl.totem.app.shield.ShieldService
 import nl.totem.app.store.AppStore
@@ -102,7 +101,9 @@ fun SettingsScreen(
                 uitleg = "Nodig om te zien welke app je opent. Zonder dit kan Totem niets blokkeren.",
                 aan = toegankelijkheid,
                 onClick = {
-                    if (SharedStore.accessibilityConsent) {
+                    // Staat de dienst uit, dan wordt er opnieuw toestemming
+                    // gevraagd -- uitzetten is intrekken.
+                    if (toegankelijkheid) {
                         ShieldService.openAccessibilitySettings(context)
                     } else {
                         toonKennisgeving = true

@@ -39,7 +39,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
-import nl.totem.app.data.SharedStore
 import nl.totem.app.notify.NotificationService
 import nl.totem.app.shield.ShieldService
 
@@ -131,8 +130,12 @@ fun OnboardingScreen(
                 "apps’. Tik erop en zet de schakelaar aan.",
             knop = "Toegankelijkheid openen",
             onClick = {
-                // Al eerder akkoord gegaan? Dan hoeft de kennisgeving niet opnieuw.
-                if (SharedStore.accessibilityConsent) {
+                // De kennisgeving hoort bij het aanzetten van de dienst, niet bij
+                // de eerste keer. Zet de gebruiker hem later uit, dan is de
+                // toestemming daarmee ingetrokken en moet hij opnieuw worden
+                // gevraagd. Alleen als de dienst al aan staat gaan we direct
+                // door -- dan komt de gebruiker om hem juist uit te zetten.
+                if (toegankelijkheid) {
                     ShieldService.openAccessibilitySettings(context)
                 } else {
                     toonKennisgeving = true

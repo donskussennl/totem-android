@@ -121,13 +121,13 @@ object SharedStore {
         set(value) = prefs.edit().putBoolean(KEY_NOTIFY, value).apply()
 
     /**
-     * Of de gebruiker de prominente kennisgeving over de
-     * Toegankelijkheidsservice heeft gezien en aangetikt.
+     * Wanneer de gebruiker de prominente kennisgeving heeft aangetikt.
      *
-     * Wordt alleen op waar gezet door de knop 'Ik ga akkoord' in
-     * [nl.totem.app.ui.ToegankelijkheidKennisgeving]. Het tijdstip staat er
-     * apart bij: zo is bij een beoordeling na te gaan wanneer er toestemming
-     * is gegeven.
+     * Dit is een aantekening, geen sleutel: of de kennisgeving getoond wordt
+     * hangt af van de dienst zelf. Staat die uit, dan wordt er opnieuw
+     * toestemming gevraagd -- uitzetten is intrekken. Het tijdstip staat er
+     * apart bij, zodat bij een beoordeling na te gaan is wanneer de gebruiker
+     * voor het laatst akkoord ging.
      */
     var accessibilityConsent: Boolean
         get() = prefs.getBoolean(KEY_A11Y_CONSENT, false)
