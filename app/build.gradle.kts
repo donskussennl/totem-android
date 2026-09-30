@@ -7,13 +7,13 @@ plugins {
 
 android {
     namespace = "nl.totem.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "nl.totem.app"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 6
+        targetSdk = 36
+        versionCode = 7
         versionName = "1.2"
     }
 
