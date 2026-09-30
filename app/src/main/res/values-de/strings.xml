@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gegenereerd door tools/make_strings.py. Niet met de hand aanpassen. -->
+<resources>
+    <string name="widget_description">Zeigt, ob eine Sperre läuft.</string>
+    <string name="accessibility_label">Totem — Apps sperren</string>
+    <string name="accessibility_description">Totem prüft, welche App du öffnest, und zeigt einen Sperrbildschirm, solange ein Fokusmodus läuft. Nichts auf deinem Bildschirm wird gelesen oder gespeichert.</string>
+    <string name="block_title">%1$s ist gesperrt</string>
+    <string name="block_body">Du hast dich für Fokus entschieden. Tippe auf dein Totem, wenn du %1$s wieder nutzen willst.</string>
+    <string name="block_this_app">Diese App</string>
+    <string name="block_back_to_life">Zurück ins echte Leben</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gegenereerd door tools/make_strings.py. Niet met de hand aanpassen. -->
+<resources>
+    <string name="widget_description">Muestra si hay un bloqueo en curso.</string>
+    <string name="accessibility_label">Totem — bloquear apps</string>
+    <string name="accessibility_description">Totem comprueba qué app abres y muestra una pantalla de bloqueo mientras hay un modo de concentración activo. No se lee ni se guarda nada de lo que hay en tu pantalla.</string>
+    <string name="block_title">%1$s está bloqueada</string>
+    <string name="block_body">Has elegido concentrarte. Toca tu Totem cuando quieras volver a usar %1$s.</string>
+    <string name="block_this_app">Esta app</string>
+    <string name="block_back_to_life">Vuelve a la vida real</string>
+</resources>

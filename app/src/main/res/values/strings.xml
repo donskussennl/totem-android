@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Gegenereerd door tools/make_strings.py. Niet met de hand aanpassen. -->
 <resources>
-    <string name="app_name">Totem</string>
-    <string name="accessibility_label">Totem — apps blokkeren</string>
-    <string name="accessibility_description">Totem kijkt welke app je opent en toont een blokkadescherm zolang een focusmodus loopt. Er wordt niets gelezen of bewaard van wat er op je scherm staat.</string>
-    <string name="widget_label">Totem</string>
-    <string name="widget_description">Laat zien of er een blokkade loopt.</string>
+    <string name="app_name" translatable="false">Totem</string>
+    <string name="widget_label" translatable="false">Totem</string>
+    <string name="widget_description">Shows whether a block is running.</string>
+    <string name="accessibility_label">Totem — block apps</string>
+    <string name="accessibility_description">Totem checks which app you open and shows a block screen while a focus mode is running. Nothing on your screen is read or stored.</string>
+    <string name="block_title">%1$s is blocked</string>
+    <string name="block_body">You chose focus. Tap your Totem when you want to use %1$s again.</string>
+    <string name="block_this_app">This app</string>
+    <string name="block_back_to_life">Back to real life</string>
 </resources>

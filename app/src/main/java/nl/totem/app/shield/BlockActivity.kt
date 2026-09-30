@@ -13,33 +13,31 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 import nl.totem.app.R
 import nl.totem.app.data.SharedStore
 import nl.totem.app.nfc.NfcService
 import nl.totem.app.schedule.SessionEngine
-import nl.totem.app.ui.formatElapsed
 import java.lang.ref.WeakReference
 
 /**
@@ -86,9 +84,9 @@ class BlockActivity : ComponentActivity() {
     }
 
     private fun toon(intent: Intent) {
-        val modeName = intent.getStringExtra(EXTRA_MODE_NAME) ?: "Totem"
-        val startedAt = intent.getLongExtra(EXTRA_STARTED_AT, 0L)
-        setContent { BlockScreen(modeName = modeName, startedAt = startedAt) }
+        val appName = intent.getStringExtra(EXTRA_APP_NAME)
+            ?: getString(R.string.block_this_app)
+        setContent { BlockScreen(appName = appName) }
     }
 
     /** Loopt de blokkade nog wel? Zo niet, dan hoort dit scherm weg te zijn. */
@@ -145,6 +143,8 @@ class BlockActivity : ComponentActivity() {
     companion object {
         const val EXTRA_MODE_NAME = "modeName"
         const val EXTRA_STARTED_AT = "startedAt"
+        /** De naam van de app die geblokkeerd werd, bijvoorbeeld "Instagram". */
+        const val EXTRA_APP_NAME = "appName"
 
         /**
          * De activiteit die nu open staat, als die er is. Een zwakke
@@ -161,63 +161,57 @@ class BlockActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Zelfde ontwerp als het blokkadescherm op iOS: diep paarsblauw, het witte
+ * Totem-beeldmerk, "Instagram is geblokkeerd" en een witte knop.
+ */
 @Composable
-private fun BlockScreen(modeName: String, startedAt: Long) {
+internal fun BlockScreen(appName: String) {
     val context = LocalContext.current
-    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            now = System.currentTimeMillis()
-            delay(1000)
-        }
-    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A0A0A)),
+            .background(Color(0xFF2D2470)),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(32.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 32.dp)
         ) {
+            Spacer(Modifier.weight(1f))
+
             Image(
-                painter = painterResource(R.drawable.totem_dark),
+                painter = painterResource(R.drawable.totem_logo_white),
                 contentDescription = null,
-                modifier = Modifier.height(220.dp)
+                modifier = Modifier.size(96.dp)
             )
 
             Text(
-                text = modeName,
+                text = stringResource(R.string.block_title, appName),
                 color = Color.White,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(top = 28.dp)
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 24.dp)
             )
 
             Text(
-                text = "Deze app is geblokkeerd. Houd je Totem tegen de telefoon " +
-                    "als je weer verder wilt.",
-                color = Color(0xFF9E9E9E),
-                fontSize = 15.sp,
+                text = stringResource(R.string.block_body, appName),
+                color = Color.White.copy(alpha = 0.82f),
+                fontSize = 17.sp,
                 textAlign = TextAlign.Center,
+                lineHeight = 24.sp,
                 modifier = Modifier.padding(top = 10.dp)
             )
 
-            if (startedAt > 0) {
-                Text(
-                    text = formatElapsed(now - startedAt, withSeconds = true),
-                    color = Color(0xFF6E6E6E),
-                    fontSize = 17.sp,
-                    modifier = Modifier.padding(top = 24.dp)
-                )
-            }
+            Spacer(Modifier.weight(1f))
 
             // Zonder deze knop zit je vast op dit scherm tot je zelf de
-            // thuisknop vindt. iOS heeft hem al ("Terug naar het leven").
+            // thuisknop vindt.
             //
             // Let op: gewoon finish() werkt niet -- dan val je terug in de
             // geblokkeerde app en verschijnt dit scherm meteen opnieuw. We
@@ -234,16 +228,19 @@ private fun BlockScreen(modeName: String, startedAt: Long) {
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
-                    contentColor = Color(0xFF0A0A0A)
+                    contentColor = Color.Black
                 ),
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.padding(top = 36.dp)
+                shape = CircleShape,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(bottom = 24.dp)
+                    .height(56.dp)
             ) {
                 Text(
-                    "Terug naar het leven",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    stringResource(R.string.block_back_to_life),
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }

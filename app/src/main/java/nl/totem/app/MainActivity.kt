@@ -12,6 +12,7 @@ import androidx.activity.viewModels
 import nl.totem.app.nfc.NfcService
 import nl.totem.app.nfc.TapLink
 import nl.totem.app.store.AppStore
+import nl.totem.app.ui.DebugShots
 import nl.totem.app.ui.RootScreen
 import nl.totem.app.ui.TotemTheme
 
@@ -46,9 +47,14 @@ class MainActivity : ComponentActivity() {
         verwerkTapLink(intent)
         vraagMeldingtoestemming()
 
+        // Alleen in debug-builds: `adb shell am start -n <pakket>/nl.totem.app.MainActivity
+        // --es shot <scherm>` opent één scherm met voorbeelddata, voor
+        // screenshots. Zie DebugShots.
+        val shot = if (isDebuggable()) intent.getStringExtra("shot") else null
+
         setContent {
             TotemTheme {
-                RootScreen(store)
+                if (shot != null) DebugShots(shot, store) else RootScreen(store)
             }
         }
     }
@@ -101,6 +107,9 @@ class MainActivity : ComponentActivity() {
 
         store.handleTapLink(uid)
     }
+
+    private fun isDebuggable(): Boolean =
+        (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
     private fun vraagMeldingtoestemming() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return

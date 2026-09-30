@@ -63,10 +63,10 @@ class TotemAccessibilityService : AccessibilityService() {
         lastBlockedPackage = pakket
 
         Log.i(LOG, "BLOKKEERT $pakket (eigen pakket=$packageName)")
-        blokkeer(stand)
+        blokkeer(stand, InstalledApps.label(this, pakket))
     }
 
-    private fun blokkeer(stand: ShieldService.Stand) {
+    private fun blokkeer(stand: ShieldService.Stand, appName: String) {
         // Eerst de geblokkeerde app wegduwen. Doen we dit ná het openen van ons
         // eigen scherm, dan zou de startknop óns scherm wegduwen.
         Log.i(LOG, "drukt op HOME")
@@ -80,6 +80,7 @@ class TotemAccessibilityService : AccessibilityService() {
             )
             putExtra(BlockActivity.EXTRA_MODE_NAME, stand.modeName)
             putExtra(BlockActivity.EXTRA_STARTED_AT, stand.startedAt)
+            putExtra(BlockActivity.EXTRA_APP_NAME, appName)
         }
 
         // Een korte tel wachten zodat het startscherm eerst klaar is; anders
