@@ -82,6 +82,8 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
 
     // Geofencing voor schema's op locatie: Android wekt ons bij aankomst en vertrek.
+    // Nieuwere Fragment dan play-services meetrekt; nodig voor registerForActivityResult.
+    implementation(libs.androidx.fragment)
     implementation(libs.play.services.location)
 
     implementation(libs.androidx.glance.appwidget)
