@@ -38,6 +38,8 @@ object SharedStore {
     private const val KEY_A11Y_CONSENT_AT = "totem.a11y.consent.at"
     private const val KEY_ARRIVALS = "totem.location.arrivals"
     private const val KEY_SETUP_DONE = "totem.setupDone"
+    private const val KEY_PROMO_INDEX = "totem.promo.index"
+    private const val KEY_TIP_INDEX = "totem.promo.tip"
 
     val json = Json {
         ignoreUnknownKeys = true
@@ -146,6 +148,16 @@ object SharedStore {
     var setupDone: Boolean
         get() = prefs.getBoolean(KEY_SETUP_DONE, false)
         set(value) = prefs.edit().putBoolean(KEY_SETUP_DONE, value).apply()
+
+    /** Welk promotiescherm er na een ontgrendeling aan de beurt is. */
+    var promoIndex: Int
+        get() = prefs.getInt(KEY_PROMO_INDEX, 0)
+        set(value) = prefs.edit().putInt(KEY_PROMO_INDEX, value).apply()
+
+    /** Welk Totem-weetje er de volgende keer aan de beurt is. */
+    var tipIndex: Int
+        get() = prefs.getInt(KEY_TIP_INDEX, 0)
+        set(value) = prefs.edit().putInt(KEY_TIP_INDEX, value).apply()
 
     var hasOnboarded: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDED, false)

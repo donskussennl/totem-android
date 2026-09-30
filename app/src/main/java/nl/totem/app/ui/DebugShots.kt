@@ -80,6 +80,20 @@ fun DebugShots(kind: String, store: AppStore) {
 
         "wizard" -> SetupWizardScreen(store = store, isFirstRun = true, onClose = {})
 
+        // Een ontgrendeling nabootsen: daarna toont RootScreen het promotiescherm.
+        "promo" -> {
+            val mode = voorbeeldModus(werk)
+            LaunchedEffect(kind) {
+                SharedStore.init(context)
+                SharedStore.totem = PairedTotem("DEMO", "Demo Totem", 0L, isDemo = true)
+                SharedStore.modes = listOf(mode)
+                SharedStore.session = ActiveSession(mode.id, System.currentTimeMillis() - 60_000L)
+                store.load()
+                store.endSession()
+            }
+            RootScreen(store)
+        }
+
         else -> RootScreen(store)
     }
 }

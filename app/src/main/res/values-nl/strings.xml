@@ -125,4 +125,20 @@
     <string name="wiz_done_title">%1$s staat klaar</string>
     <string name="wiz_done_sub">Houd je telefoon tegen je Totem om te starten. Tik nog een keer om te stoppen.</string>
     <string name="tip_emergency">Totem kwijt tijdens een blokkade? Tik 3 keer snel op de Totem-afbeelding voor een noodontgrendeling.</string>
+    <string name="close">Sluiten</string>
+    <string name="promo_feedback_title">Hoe bevalt ‘%1$s’?</string>
+    <string name="promo_feedback_good">Goed, houden zo :)</string>
+    <string name="promo_feedback_better">Kan beter, nu aanpassen</string>
+    <string name="promo_tip_label">Totem weetje</string>
+    <string name="promo_tip_title">Wist je dat…</string>
+    <string name="promo_tip_ok">Handig!</string>
+    <string name="promo_schedule_title">Schema’s tegen doomscrollen</string>
+    <string name="promo_schedule_body">Jij kiest wanneer het schema activeert. Totem gaat dan vanzelf aan.</string>
+    <string name="promo_schedule_button">Schema instellen</string>
+    <string name="promo_location_title">Brainrot uitschakelen op de locatie die jij kiest</string>
+    <string name="promo_location_body">Bijvoorbeeld in de sportschool: zodra je binnenkomt gaat je modus aan.</string>
+    <string name="promo_location_button">Activeer locatiebescherming</string>
+    <string name="tip_any_totem">Elke Totem werkt: start op kantoor met de Totem die daar ligt en stop thuis met je eigen.</string>
+    <string name="tip_strict">Zet in Instellingen de strikte modus aan. Dan vraagt ook de noodontgrendeling om je pincode.</string>
+    <string name="tip_tap_closed">Tik je Totem aan terwijl de app dicht is: je kiest dan meteen welke modus start.</string>
 </resources>

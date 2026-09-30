@@ -39,6 +39,19 @@ object SessionEngine {
     private val _revision = MutableStateFlow(0L)
     val revision: StateFlow<Long> = _revision
 
+    /**
+     * De modus die de gebruiker net zelf heeft ontgrendeld, met een Totem of
+     * de noodontgrendeling. De app laat daarna een promotiescherm zien; ook
+     * als de ontgrendeling op het blokkadescherm gebeurde, dat een eigen
+     * activiteit is. Wordt leeggemaakt met [consumeUnlock].
+     */
+    private val _unlockedMode = MutableStateFlow<String?>(null)
+    val unlockedMode: StateFlow<String?> = _unlockedMode
+
+    fun consumeUnlock() {
+        _unlockedMode.value = null
+    }
+
     /** Voor werk dat na een wijziging nog moet gebeuren, zoals de widget. */
     private val achtergrond = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -101,7 +114,7 @@ object SessionEngine {
      *
      * @param bySchedule of de eindtijd is bereikt in plaats van dat er getikt is
      */
-    fun stop(context: Context, bySchedule: Boolean) {
+    fun stop(context: Context, bySchedule: Boolean, userUnlock: Boolean = false) {
         SharedStore.init(context)
         val session = SharedStore.session ?: return
         val mode = SharedStore.mode(session.modeID)
@@ -137,6 +150,7 @@ object SessionEngine {
         }
 
         SharedStore.session = null
+        if (userUnlock) _unlockedMode.value = session.modeID
 
         if (bySchedule && mode != null) {
             NotificationService.notifyEnded(context, mode.name)
@@ -162,7 +176,7 @@ object SessionEngine {
         if (session.startedBySchedule && mode != null && mode.schedule.pausesOnTap) {
             if (!session.isPaused()) pause(context)
         } else {
-            stop(context, bySchedule = false)
+            stop(context, bySchedule = false, userUnlock = true)
         }
     }
 

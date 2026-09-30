@@ -125,4 +125,20 @@
     <string name="wiz_done_title">%1$s ist bereit</string>
     <string name="wiz_done_sub">Halte dein Handy an dein Totem, um zu starten. Tippe noch einmal, um zu beenden.</string>
     <string name="tip_emergency">Totem während einer Sperre verloren? Tippe 3-mal schnell auf das Totem-Bild für eine Notentsperrung.</string>
+    <string name="close">Schließen</string>
+    <string name="promo_feedback_title">Wie gefällt dir „%1$s“?</string>
+    <string name="promo_feedback_good">Super, so bleibt’s :)</string>
+    <string name="promo_feedback_better">Geht besser, jetzt ändern</string>
+    <string name="promo_tip_label">Totem-Tipp</string>
+    <string name="promo_tip_title">Wusstest du …</string>
+    <string name="promo_tip_ok">Praktisch!</string>
+    <string name="promo_schedule_title">Zeitpläne gegen Doomscrolling</string>
+    <string name="promo_schedule_body">Du wählst, wann der Zeitplan startet. Totem geht dann von selbst an.</string>
+    <string name="promo_schedule_button">Zeitplan einrichten</string>
+    <string name="promo_location_title">Brainrot abschalten an dem Ort, den du wählst</string>
+    <string name="promo_location_body">Zum Beispiel im Fitnessstudio: Sobald du hereinkommst, geht dein Modus an.</string>
+    <string name="promo_location_button">Ortsschutz aktivieren</string>
+    <string name="tip_any_totem">Jedes Totem funktioniert: Starte im Büro mit dem Totem dort und beende zu Hause mit deinem eigenen.</string>
+    <string name="tip_strict">Schalte in den Einstellungen den strengen Modus ein. Dann fragt auch die Notentsperrung nach deiner PIN.</string>
+    <string name="tip_tap_closed">Tippe auf dein Totem, während die App geschlossen ist: Du wählst sofort, welcher Modus startet.</string>
 </resources>

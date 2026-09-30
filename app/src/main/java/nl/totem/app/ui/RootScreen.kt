@@ -43,6 +43,8 @@ fun RootScreen(store: AppStore) {
     val error by store.errorMessage.collectAsStateWithLifecycle()
     val awaitingChoice by store.awaitingModeChoice.collectAsStateWithLifecycle()
     val needsSetup by store.needsSetup.collectAsStateWithLifecycle()
+    val promo by store.unlockPromo.collectAsStateWithLifecycle()
+    val modeToEdit by store.modeToEdit.collectAsStateWithLifecycle()
 
     /** Welk scherm er open staat bovenop de lijst. */
     var route by remember { mutableStateOf<Route>(Route.Modes) }
@@ -137,6 +139,14 @@ fun RootScreen(store: AppStore) {
                 )
             }
         }
+    }
+
+    // Na een geslaagde ontgrendeling: even een vraag, weetje of tip.
+    promo?.let { UnlockPromoOverlay(store, it) }
+
+    // Vanuit het promotiescherm naar de editor van de modus.
+    modeToEdit?.let { mode ->
+        ModeEditorSheet(store = store, mode = mode, onDismiss = { store.doneEditing() })
     }
 
     // Je hebt getikt terwijl er niets liep: kiezen welke modus het wordt.

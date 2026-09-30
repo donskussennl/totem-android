@@ -125,4 +125,20 @@
     <string name="wiz_done_title">%1$s está listo</string>
     <string name="wiz_done_sub">Acerca tu teléfono a tu Totem para empezar. Vuelve a tocar para detener.</string>
     <string name="tip_emergency">¿Has perdido tu Totem durante un bloqueo? Toca 3 veces rápido la imagen del Totem para un desbloqueo de emergencia.</string>
+    <string name="close">Cerrar</string>
+    <string name="promo_feedback_title">¿Qué te parece «%1$s»?</string>
+    <string name="promo_feedback_good">Genial, así se queda :)</string>
+    <string name="promo_feedback_better">Puede mejorar, editar ahora</string>
+    <string name="promo_tip_label">Truco Totem</string>
+    <string name="promo_tip_title">Sabías que…</string>
+    <string name="promo_tip_ok">¡Qué útil!</string>
+    <string name="promo_schedule_title">Horarios contra el doomscrolling</string>
+    <string name="promo_schedule_body">Tú eliges cuándo se activa el horario. Totem se enciende solo.</string>
+    <string name="promo_schedule_button">Configurar un horario</string>
+    <string name="promo_location_title">Apaga el brainrot en el lugar que elijas</string>
+    <string name="promo_location_body">En el gimnasio, por ejemplo: tu modo se activa en cuanto entras.</string>
+    <string name="promo_location_button">Activar la protección por ubicación</string>
+    <string name="tip_any_totem">Cualquier Totem sirve: empieza en la oficina con el Totem de allí y termina en casa con el tuyo.</string>
+    <string name="tip_strict">Activa el modo estricto en Ajustes. Así el desbloqueo de emergencia también pedirá tu PIN.</string>
+    <string name="tip_tap_closed">Toca tu Totem con la app cerrada: eliges al momento qué modo empieza.</string>
 </resources>

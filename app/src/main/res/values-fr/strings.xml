@@ -125,4 +125,20 @@
     <string name="wiz_done_title">%1$s est prêt</string>
     <string name="wiz_done_sub">Approche ton téléphone de ton Totem pour démarrer. Tape à nouveau pour arrêter.</string>
     <string name="tip_emergency">Tu as perdu ton Totem pendant un blocage ? Tape 3 fois rapidement sur l’image du Totem pour un déverrouillage d’urgence.</string>
+    <string name="close">Fermer</string>
+    <string name="promo_feedback_title">Que penses-tu de « %1$s » ?</string>
+    <string name="promo_feedback_good">Super, on continue :)</string>
+    <string name="promo_feedback_better">Peut mieux faire, modifier</string>
+    <string name="promo_tip_label">Astuce Totem</string>
+    <string name="promo_tip_title">Le savais-tu…</string>
+    <string name="promo_tip_ok">Pratique !</string>
+    <string name="promo_schedule_title">Des programmes contre le doomscrolling</string>
+    <string name="promo_schedule_body">Tu choisis quand le programme s’active. Totem se lance alors tout seul.</string>
+    <string name="promo_schedule_button">Créer un programme</string>
+    <string name="promo_location_title">Coupe le brainrot à l’endroit de ton choix</string>
+    <string name="promo_location_body">À la salle de sport, par exemple : ton mode s’active dès que tu entres.</string>
+    <string name="promo_location_button">Activer la protection par lieu</string>
+    <string name="tip_any_totem">N’importe quel Totem fonctionne : démarre au bureau avec le Totem qui s’y trouve et arrête chez toi avec le tien.</string>
+    <string name="tip_strict">Active le mode strict dans Réglages. Le déverrouillage d’urgence demandera alors aussi ton code.</string>
+    <string name="tip_tap_closed">Tape ton Totem quand l’app est fermée : tu choisis tout de suite le mode à lancer.</string>
 </resources>

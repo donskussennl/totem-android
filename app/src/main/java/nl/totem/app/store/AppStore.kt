@@ -15,6 +15,8 @@ import nl.totem.app.data.PinService
 import nl.totem.app.data.SharedStore
 import nl.totem.app.model.ActiveSession
 import nl.totem.app.model.FocusMode
+import nl.totem.app.model.ScheduleTrigger
+import nl.totem.app.model.ScheduleEnd
 import nl.totem.app.model.PairedTotem
 import nl.totem.app.model.SessionLog
 import nl.totem.app.model.TotemError
@@ -81,6 +83,13 @@ class AppStore(app: Application) : AndroidViewModel(app) {
 
     val isScanning: Boolean get() = _scanRequest.value != null
 
+    private val _unlockPromo = MutableStateFlow<UnlockPromo?>(null)
+    val unlockPromo: StateFlow<UnlockPromo?> = _unlockPromo.asStateFlow()
+
+    /** Vraagt het scherm de editor te openen, eventueel met een schema dat al klaarstaat. */
+    private val _modeToEdit = MutableStateFlow<FocusMode?>(null)
+    val modeToEdit: StateFlow<FocusMode?> = _modeToEdit.asStateFlow()
+
     /**
      * True zolang de wizard nog niet is doorlopen. Wie al een ingestelde modus
      * heeft (van vóór de wizard), slaat hem over.
@@ -99,6 +108,17 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         // aan dat er iets veranderd is.
         viewModelScope.launch {
             SessionEngine.revision.collect { load() }
+        }
+
+        // Net zelf ontgrendeld (hier of op het blokkadescherm)? Dan even een
+        // promotiescherm laten zien.
+        viewModelScope.launch {
+            SessionEngine.unlockedMode.collect { id ->
+                if (id != null) {
+                    SessionEngine.consumeUnlock()
+                    showPromo(id)
+                }
+            }
         }
     }
 
@@ -158,6 +178,76 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         SharedStore.setupDone = true
         _needsSetup.value = false
         persistModes()
+    }
+
+    // MARK: - Promotiescherm na ontgrendelen
+
+    /** Wat er na een geslaagde ontgrendeling even in beeld komt. */
+    sealed interface UnlockPromo {
+        data class Feedback(val modeID: String, val modeName: String) : UnlockPromo
+        data class Tip(val textRes: Int) : UnlockPromo
+        data class Schedule(val modeID: String) : UnlockPromo
+        data class Location(val modeID: String) : UnlockPromo
+    }
+
+    fun dismissPromo() {
+        _unlockPromo.value = null
+    }
+
+    fun doneEditing() {
+        _modeToEdit.value = null
+    }
+
+    /**
+     * Het volgende promotiescherm, om de beurt: feedback, weetje, schema,
+     * locatie. Wat voor deze modus niet (meer) zinvol is slaan we over.
+     */
+    private fun showPromo(modeID: String) {
+        val mode = SharedStore.mode(modeID) ?: return
+        val start = SharedStore.promoIndex
+        for (stap in 0 until 4) {
+            val index = (start + stap) % 4
+            val promo: UnlockPromo? = when (index) {
+                0 -> UnlockPromo.Feedback(mode.id, mode.name)
+                1 -> {
+                    val tip = TIPS[SharedStore.tipIndex % TIPS.size]
+                    SharedStore.tipIndex = SharedStore.tipIndex + 1
+                    UnlockPromo.Tip(tip)
+                }
+                2 -> if (mode.schedule.isOn) null else UnlockPromo.Schedule(mode.id)
+                else -> if (mode.schedule.isOn && mode.schedule.trigger == ScheduleTrigger.LOCATION) null
+                else UnlockPromo.Location(mode.id)
+            }
+            if (promo != null) {
+                SharedStore.promoIndex = index + 1
+                _unlockPromo.value = promo
+                return
+            }
+        }
+    }
+
+    /** Een knop op het promotiescherm is aangetikt. */
+    fun promoAction(promo: UnlockPromo) {
+        _unlockPromo.value = null
+        when (promo) {
+            is UnlockPromo.Feedback -> _modeToEdit.value = mode(promo.modeID)
+            is UnlockPromo.Tip -> Unit
+            is UnlockPromo.Schedule -> mode(promo.modeID)?.let { m ->
+                // Schema alvast aanzetten, op tijd.
+                val eind = m.schedule.end.takeIf { it !is ScheduleEnd.Leave } ?: ScheduleEnd.Time(17, 0)
+                _modeToEdit.value = if (m.schedule.isOn) m else m.copy(
+                    schedule = m.schedule.copy(isOn = true, trigger = ScheduleTrigger.TIME, end = eind)
+                )
+            }
+            is UnlockPromo.Location -> mode(promo.modeID)?.let { m ->
+                // Nog geen schema: meteen op locatie. Wel een schema: dat openen.
+                _modeToEdit.value = if (m.schedule.isOn) m else m.copy(
+                    schedule = m.schedule.copy(
+                        isOn = true, trigger = ScheduleTrigger.LOCATION, end = ScheduleEnd.Leave
+                    )
+                )
+            }
+        }
     }
 
     // MARK: - Modi
@@ -243,7 +333,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
             return
         }
         if (_totem.value?.isDemo == true) {
-            SessionEngine.stop(context, bySchedule = false)
+            SessionEngine.stop(context, bySchedule = false, userUnlock = true)
             return
         }
         _scanRequest.value = ScanRequest(
@@ -338,7 +428,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
 
             ScanPurpose.STOP -> {
                 if (!accepteerTotem(uid, payload)) return
-                SessionEngine.stop(context, bySchedule = false)
+                SessionEngine.stop(context, bySchedule = false, userUnlock = true)
             }
 
             ScanPurpose.PAUSE -> {
@@ -481,7 +571,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
 
         _emergencyUsed.value = _emergencyUsed.value + 1
         SharedStore.emergencyUsed = _emergencyUsed.value
-        SessionEngine.stop(context, bySchedule = false)
+        SessionEngine.stop(context, bySchedule = false, userUnlock = true)
         return true
     }
 
@@ -542,5 +632,13 @@ class AppStore(app: Application) : AndroidViewModel(app) {
     companion object {
         /** Aantal noodontgrendelingen per maand. */
         const val EMERGENCY_LIMIT = 5
+
+        /** De Totem-weetjes die elkaar afwisselen. */
+        val TIPS = listOf(
+            R.string.tip_emergency,
+            R.string.tip_any_totem,
+            R.string.tip_strict,
+            R.string.tip_tap_closed
+        )
     }
 }

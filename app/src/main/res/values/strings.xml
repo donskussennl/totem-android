@@ -127,4 +127,20 @@
     <string name="wiz_done_title">%1$s is ready</string>
     <string name="wiz_done_sub">Hold your phone against your Totem to start. Tap again to stop.</string>
     <string name="tip_emergency">Lost your Totem during a block? Quickly tap the Totem image 3 times for an emergency unlock.</string>
+    <string name="close">Close</string>
+    <string name="promo_feedback_title">How do you like ‘%1$s’?</string>
+    <string name="promo_feedback_good">Great, keep it up :)</string>
+    <string name="promo_feedback_better">Could be better, edit now</string>
+    <string name="promo_tip_label">Totem tip</string>
+    <string name="promo_tip_title">Did you know…</string>
+    <string name="promo_tip_ok">Handy!</string>
+    <string name="promo_schedule_title">Schedules against doomscrolling</string>
+    <string name="promo_schedule_body">You choose when the schedule kicks in. Totem then turns on by itself.</string>
+    <string name="promo_schedule_button">Set up a schedule</string>
+    <string name="promo_location_title">Switch off brainrot at the place you choose</string>
+    <string name="promo_location_body">At the gym, for example: your mode turns on as soon as you walk in.</string>
+    <string name="promo_location_button">Turn on location protection</string>
+    <string name="tip_any_totem">Any Totem works: start at the office with the Totem there and stop at home with your own.</string>
+    <string name="tip_strict">Turn on strict mode in Settings. Then the emergency unlock asks for your PIN too.</string>
+    <string name="tip_tap_closed">Tap your Totem while the app is closed: you pick right away which mode starts.</string>
 </resources>
