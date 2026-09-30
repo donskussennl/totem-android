@@ -141,9 +141,14 @@ class AppStore(app: Application) : AndroidViewModel(app) {
 
     // MARK: - Modi
 
-    fun addMode(mode: FocusMode) {
+    fun addMode(mode: FocusMode): Boolean {
+        if (_modes.value.size >= FocusMode.MAX_COUNT) {
+            _errorMessage.value = context.getString(R.string.error_max_modes, FocusMode.MAX_COUNT)
+            return false
+        }
         _modes.value = _modes.value + mode
         persistModes()
+        return true
     }
 
     fun update(mode: FocusMode) {

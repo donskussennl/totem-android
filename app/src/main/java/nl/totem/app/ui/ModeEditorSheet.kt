@@ -60,7 +60,9 @@ import nl.totem.app.store.AppStore
 fun ModeEditorSheet(
     store: AppStore,
     mode: FocusMode,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    /** Een nieuwe modus: pas bij "Bewaar" toevoegen, en geen verwijderknop. */
+    isNew: Boolean = false
 ) {
     var concept by remember(mode.id) { mutableStateOf(mode) }
     var kiezerOpen by remember { mutableStateOf(false) }
@@ -175,7 +177,7 @@ fun ModeEditorSheet(
                         label = "Tot",
                         waarde = when (eind) {
                             is ScheduleEnd.Time -> "%02d:%02d".format(eind.hour, eind.minute)
-                            is ScheduleEnd.Tap -> "Als je tikt"
+                            is ScheduleEnd.Tap, is ScheduleEnd.Leave -> "Als je tikt"
                         },
                         modifier = Modifier.weight(1f)
                     ) { tijdKiezer = TijdSoort.EIND }
@@ -238,7 +240,7 @@ fun ModeEditorSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TextButton(
+                if (!isNew) TextButton(
                     onClick = {
                         store.deleteMode(concept.id)
                         onDismiss()
@@ -262,7 +264,7 @@ fun ModeEditorSheet(
 
                 Button(
                     onClick = {
-                        store.update(concept)
+                        if (isNew) store.addMode(concept) else store.update(concept)
                         onDismiss()
                     },
                     enabled = concept.name.isNotBlank()

@@ -17,7 +17,8 @@ object ScheduleService {
 
     /** Zit [nu] binnen het venster van dit schema? */
     fun isWithinWindow(schedule: Schedule, nu: Long = System.currentTimeMillis()): Boolean {
-        if (!schedule.isOn) return false
+        // Schema's op locatie hebben geen tijdvenster; zie LocationService.
+        if (!schedule.isTimed) return false
 
         val cal = Calendar.getInstance().apply { timeInMillis = nu }
         val minutesNow = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)

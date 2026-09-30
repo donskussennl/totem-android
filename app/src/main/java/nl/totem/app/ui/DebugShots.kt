@@ -53,9 +53,39 @@ fun DebugShots(kind: String, store: AppStore) {
             ModeDetailScreen(store = store, modeID = mode.id, onBack = {})
         }
 
+        "home" -> {
+            LaunchedEffect(kind) {
+                SharedStore.init(context)
+                SharedStore.totem = PairedTotem("DEMO", "Demo Totem", 0L, isDemo = true)
+                SharedStore.session = null
+                SharedStore.modes = voorbeeldModi(context)
+                store.load()
+            }
+            ModesScreen(store, onOpenMode = {}, onOpenSettings = {}, onOpenStats = {}, onAddMode = {})
+        }
+
         else -> RootScreen(store)
     }
 }
+
+/** Werk op tijd, Sport op locatie, Studeren zonder schema. */
+private fun voorbeeldModi(context: android.content.Context): List<FocusMode> = listOf(
+    voorbeeldModus(context.getString(R.string.mode_work)),
+    FocusMode(
+        id = "debug-sport",
+        name = context.getString(R.string.mode_sport),
+        symbol = "run",
+        blockedPackages = (1..6).map { "com.voorbeeld.app$it" }.toSet(),
+        schedule = Schedule(
+            isOn = true,
+            trigger = nl.totem.app.model.ScheduleTrigger.LOCATION,
+            end = ScheduleEnd.Leave,
+            weekdays = (1..7).toSet(),
+            place = nl.totem.app.model.Place("Basic-Fit Enschede", 52.22, 6.89)
+        )
+    ),
+    FocusMode(id = "debug-studeren", name = context.getString(R.string.mode_study), symbol = "book")
+)
 
 /** Een modus met 13 apps en een schema, met een vaste id. */
 private fun voorbeeldModus(naam: String) = FocusMode(

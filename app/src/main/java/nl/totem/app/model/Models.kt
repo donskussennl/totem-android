@@ -47,6 +47,36 @@ sealed class ScheduleEnd {
     @Serializable
     @SerialName("tap")
     data object Tap : ScheduleEnd()
+
+    /** Zodra je de locatie verlaat. Alleen bij een schema op locatie. */
+    @Serializable
+    @SerialName("leave")
+    data object Leave : ScheduleEnd()
+}
+
+/** Waardoor een schema begint. */
+@Serializable
+enum class ScheduleTrigger {
+    /** Op een vaste tijd. De standaard. */
+    @SerialName("time") TIME,
+
+    /** Zodra je bij een gekozen plek aankomt, bijvoorbeeld de sportschool. */
+    @SerialName("location") LOCATION
+}
+
+/** Een plek waar een schema op locatie begint. */
+@Serializable
+data class Place(
+    val name: String,
+    val latitude: Double,
+    val longitude: Double,
+    /** In meters. Onder de ~100 m reageert Android onbetrouwbaar. */
+    val radius: Double = 150.0
+) {
+    companion object {
+        const val MIN_RADIUS = 100.0
+        const val MAX_RADIUS = 1000.0
+    }
 }
 
 /**
@@ -67,8 +97,19 @@ data class Schedule(
      * Hoe lang de apps ontdooien als je tijdens het schema je Totem aantikt.
      * Daarna bevriezen ze weer tot het schema voorbij is.
      */
-    val pauseMinutes: Int = 5
+    val pauseMinutes: Int = 5,
+    /** Op tijd (standaard) of op locatie. */
+    val trigger: ScheduleTrigger = ScheduleTrigger.TIME,
+    /** De plek, als het schema op locatie begint. */
+    val place: Place? = null
 ) {
+    /** Of dit schema met wekkers op tijd loopt. */
+    val isTimed: Boolean get() = isOn && trigger == ScheduleTrigger.TIME
+
+    /** Of dit schema op locatie loopt én er een plek gekozen is. */
+    val isLocationBased: Boolean
+        get() = isOn && trigger == ScheduleTrigger.LOCATION && place != null
+
     /**
      * Of een tik tijdens dit schema de apps even ontdooit in plaats van het
      * schema te beëindigen. Bij "als je tikt" is de tik juist het einde.
@@ -86,7 +127,7 @@ data class Schedule(
             val start = "%02d:%02d".format(startHour, startMinute)
             val stop = when (end) {
                 is ScheduleEnd.Time -> "%02d:%02d".format(end.hour, end.minute)
-                is ScheduleEnd.Tap -> "als je tikt"
+                is ScheduleEnd.Tap, is ScheduleEnd.Leave -> "als je tikt"
             }
             return "$start – $stop"
         }
@@ -112,6 +153,8 @@ data class FocusMode(
 
     val isConfigured: Boolean get() = blockedPackages.isNotEmpty()
 
+    // (Meer dan tien modi maakt de lijst onoverzichtelijk; zie MAX_COUNT.)
+
     /** Korte samenvatting onder de naam in de lijst. */
     val summary: String
         get() = buildString {
@@ -120,6 +163,9 @@ data class FocusMode(
         }
 
     companion object {
+        /** Meer dan tien modi maakt de lijst onoverzichtelijk. */
+        const val MAX_COUNT = 10
+
         fun defaults(): List<FocusMode> = listOf(
             FocusMode(name = "Werk", symbol = "laptop"),
             FocusMode(name = "Slaap", symbol = "moon"),

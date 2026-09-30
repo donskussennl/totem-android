@@ -48,7 +48,7 @@ object ActivityScheduler {
         val alarms = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         for (mode in modes) {
-            if (!mode.schedule.isOn || !mode.isConfigured) continue
+            if (!mode.schedule.isTimed || !mode.isConfigured) continue
 
             for (weekday in mode.schedule.weekdays.sorted()) {
                 // Begintijd

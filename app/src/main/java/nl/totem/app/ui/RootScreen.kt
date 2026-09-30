@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.totem.app.data.SharedStore
+import nl.totem.app.model.FocusMode
 import nl.totem.app.store.AppStore
 
 /**
@@ -44,6 +45,9 @@ fun RootScreen(store: AppStore) {
 
     /** Welk scherm er open staat bovenop de lijst. */
     var route by remember { mutableStateOf<Route>(Route.Modes) }
+
+    /** "Modus toevoegen" is aangetikt. */
+    var nieuweModus by remember { mutableStateOf(false) }
 
     // Het toestemmingsscherm: alleen zolang het nog nodig is, en alleen als de
     // gebruiker het niet zelf heeft weggeklikt.
@@ -99,7 +103,8 @@ fun RootScreen(store: AppStore) {
                     store = store,
                     onOpenMode = { route = Route.Detail(it) },
                     onOpenSettings = { route = Route.Settings },
-                    onOpenStats = { route = Route.Stats }
+                    onOpenStats = { route = Route.Stats },
+                    onAddMode = { nieuweModus = true }
                 )
 
                 is Route.Detail -> ModeDetailScreen(
@@ -120,6 +125,17 @@ fun RootScreen(store: AppStore) {
                 )
             }
         }
+    }
+
+    // Een nieuwe modus: tijdelijk nog via de editor.
+    if (nieuweModus) {
+        val nieuw = remember { FocusMode(name = "", symbol = "circle") }
+        ModeEditorSheet(
+            store = store,
+            mode = nieuw,
+            isNew = true,
+            onDismiss = { nieuweModus = false }
+        )
     }
 
     // Je hebt getikt terwijl er niets liep: kiezen welke modus het wordt.
