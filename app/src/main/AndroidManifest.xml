@@ -31,6 +31,16 @@
 
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Schema's op locatie: een modus start als je bij een gekozen plek
+         aankomt, bijvoorbeeld de sportschool. Alleen als de gebruiker daar
+         zelf voor kiest; de app vraagt het pas als je "Op locatie" kiest.
+         ACCESS_BACKGROUND_LOCATION is nodig omdat Android ons anders niet
+         wekt als de app dicht is. Google Play vraagt hiervoor een aparte
+         verklaring; zie README. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
     <!-- Zonder NFC heeft Totem geen zin, maar we blokkeren de installatie niet:
          zo kun je de app ook op een tablet bekijken. -->
     <uses-feature
@@ -164,6 +174,11 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <!-- Aankomst bij en vertrek van een gekozen plek. -->
+        <receiver
+            android:name=".location.GeofenceReceiver"
+            android:exported="false" />
 
         <!-- De widget op het startscherm. -->
         <receiver

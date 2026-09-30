@@ -81,6 +81,9 @@ dependencies {
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.work.runtime.ktx)
 
+    // Geofencing voor schema's op locatie: Android wekt ons bij aankomst en vertrek.
+    implementation(libs.play.services.location)
+
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
 }

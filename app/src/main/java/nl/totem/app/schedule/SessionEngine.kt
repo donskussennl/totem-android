@@ -84,8 +84,11 @@ object SessionEngine {
         SessionService.start(context, mode.name, session.startedAt)
 
         if (bySchedule) {
-            val until = (mode.schedule.end as? ScheduleEnd.Time)
-                ?.let { "%02d:%02d".format(it.hour, it.minute) }
+            val until = when (val end = mode.schedule.end) {
+                is ScheduleEnd.Time -> nl.totem.app.ui.Texts.clock(context, end.hour, end.minute)
+                is ScheduleEnd.Leave -> context.getString(R.string.notify_until_leave)
+                is ScheduleEnd.Tap -> null
+            }
             NotificationService.notifyStarted(context, mode.name, until)
         }
 
@@ -224,7 +227,9 @@ object SessionEngine {
             val mode = SharedStore.mode(session.modeID)
             if (mode == null) {
                 stop(context, bySchedule = true)
-            } else if (session.startedBySchedule && ScheduleService.shouldStop(mode, nu)) {
+            } else if (session.startedBySchedule &&
+                ScheduleService.shouldStop(mode, nu, SharedStore.arrivals)
+            ) {
                 stop(context, bySchedule = true)
             } else {
                 // De blokkade in geheugen kan zijn weggevallen na een herstart.
@@ -234,7 +239,9 @@ object SessionEngine {
         }
 
         // 2. Hoort er iets te lopen dat nog niet loopt?
-        val zou = ScheduleService.modeThatShouldRun(modes, nu, SharedStore.dismissed)
+        val zou = ScheduleService.modeThatShouldRun(
+            modes, nu, SharedStore.dismissed, SharedStore.arrivals
+        )
         if (zou != null) start(context, zou, bySchedule = true)
     }
 }

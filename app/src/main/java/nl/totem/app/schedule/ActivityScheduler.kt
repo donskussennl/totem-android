@@ -40,6 +40,8 @@ object ActivityScheduler {
         cancelAll(context, modes)
         schedule(context, modes)
         ScheduleWorker.enqueue(context)
+        // Schema's op locatie gaan via geofences in plaats van wekkers.
+        nl.totem.app.location.LocationService.refresh(context)
     }
 
     // MARK: - Wekkers

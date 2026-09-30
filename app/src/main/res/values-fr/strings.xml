@@ -63,4 +63,25 @@
     <string name="sched_weekend">week-end</string>
     <string name="sched_no_day">aucun jour</string>
     <string name="sched_no_place">aucun lieu choisi</string>
+    <string name="notify_until_leave">ton départ</string>
+    <string name="loc_title">Lieu</string>
+    <string name="loc_search_hint">Cherche un lieu ou une adresse</string>
+    <string name="loc_search">Rechercher</string>
+    <string name="loc_current">Utiliser ma position actuelle</string>
+    <string name="loc_no_results">Rien trouvé. Essaie une autre adresse.</string>
+    <string name="loc_radius">Rayon : %1$d m</string>
+    <string name="loc_radius_help">Le mode démarre dès que tu entres dans ce cercle. Android ne le détecte pas au mètre près ; un rayon de 150 m ou plus est le plus fiable.</string>
+    <string name="loc_choose">Choisir un lieu</string>
+    <string name="loc_default_name">Lieu</string>
+    <string name="loc_perm_title">Accès à la position « Toujours autoriser » requis</string>
+    <string name="loc_perm_body">C’est la seule façon pour Totem de lancer le mode quand l’app est fermée. Ta position reste sur ton téléphone ; Totem vérifie seulement si tu es à cet endroit.</string>
+    <string name="loc_perm_button">Autoriser</string>
+    <string name="loc_perm_settings">Ouvrir les réglages</string>
+    <string name="sched_trigger_time">À une heure</string>
+    <string name="sched_trigger_location">Selon le lieu</string>
+    <string name="sched_end_leave">Quand tu pars</string>
+    <string name="sched_end_tap">Quand tu tapes</string>
+    <string name="sched_ends">Se termine</string>
+    <string name="sched_location_help">Ce mode démarre automatiquement quand tu arrives à cet endroit les jours choisis. Choisis « Quand tu tapes » et le blocage ne s’arrête que lorsque tu tapes ton Totem, même si tu pars.</string>
+    <string name="done">OK</string>
 </resources>

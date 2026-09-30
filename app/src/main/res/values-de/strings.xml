@@ -63,4 +63,25 @@
     <string name="sched_weekend">Wochenende</string>
     <string name="sched_no_day">kein Tag</string>
     <string name="sched_no_place">kein Ort gewählt</string>
+    <string name="notify_until_leave">du gehst</string>
+    <string name="loc_title">Ort</string>
+    <string name="loc_search_hint">Suche einen Ort oder eine Adresse</string>
+    <string name="loc_search">Suchen</string>
+    <string name="loc_current">Meinen aktuellen Standort verwenden</string>
+    <string name="loc_no_results">Nichts gefunden. Versuch eine andere Adresse.</string>
+    <string name="loc_radius">Radius: %1$d m</string>
+    <string name="loc_radius_help">Sobald du diesen Kreis betrittst, beginnt der Modus. Android erkennt das nicht metergenau; ein Radius von 150 m oder mehr ist am zuverlässigsten.</string>
+    <string name="loc_choose">Ort wählen</string>
+    <string name="loc_default_name">Ort</string>
+    <string name="loc_perm_title">Standortzugriff „Immer zulassen“ nötig</string>
+    <string name="loc_perm_body">Nur dann kann Totem den Modus starten, wenn die App geschlossen ist. Dein Standort bleibt auf deinem Handy; Totem prüft nur, ob du an diesem Ort bist.</string>
+    <string name="loc_perm_button">Erlauben</string>
+    <string name="loc_perm_settings">Einstellungen öffnen</string>
+    <string name="sched_trigger_time">Nach Zeit</string>
+    <string name="sched_trigger_location">Nach Ort</string>
+    <string name="sched_end_leave">Wenn du gehst</string>
+    <string name="sched_end_tap">Wenn du tippst</string>
+    <string name="sched_ends">Endet</string>
+    <string name="sched_location_help">Dieser Modus beginnt automatisch, wenn du an den gewählten Tagen an diesem Ort ankommst. Wählst du „Wenn du tippst“, endet die Sperre erst, wenn du dein Totem antippst – auch wenn du gehst.</string>
+    <string name="done">Fertig</string>
 </resources>

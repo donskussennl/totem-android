@@ -36,6 +36,7 @@ object SharedStore {
     private const val KEY_ONBOARDED = "totem.onboarded"
     private const val KEY_A11Y_CONSENT = "totem.a11y.consent"
     private const val KEY_A11Y_CONSENT_AT = "totem.a11y.consent.at"
+    private const val KEY_ARRIVALS = "totem.location.arrivals"
 
     val json = Json {
         ignoreUnknownKeys = true
@@ -169,4 +170,15 @@ object SharedStore {
     fun markDismissed(modeID: String, at: Long) {
         dismissed = dismissed + (modeID to at)
     }
+
+    // MARK: - Locatie
+
+    /** Modus-id → moment van aankomst, voor elke locatie waar je nu bent. */
+    var arrivals: Map<String, Long>
+        get() = prefs.getString(KEY_ARRIVALS, null)?.let {
+            runCatching { json.decodeFromString<Map<String, Long>>(it) }.getOrNull()
+        } ?: emptyMap()
+        set(value) {
+            prefs.edit().putString(KEY_ARRIVALS, json.encodeToString(value)).apply()
+        }
 }

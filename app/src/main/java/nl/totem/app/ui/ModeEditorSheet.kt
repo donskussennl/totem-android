@@ -29,6 +29,9 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Place
+import nl.totem.app.model.ScheduleTrigger
 import nl.totem.app.model.Schedule
 import nl.totem.app.R
 import androidx.compose.ui.res.stringResource
@@ -67,6 +70,8 @@ fun ModeEditorSheet(
     var concept by remember(mode.id) { mutableStateOf(mode) }
     var kiezerOpen by remember { mutableStateOf(false) }
     var tijdKiezer by remember { mutableStateOf<TijdSoort?>(null) }
+    var plekKiezer by remember { mutableStateOf(false) }
+    val locatieToegang = rememberLocationAccess()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
@@ -159,6 +164,31 @@ fun ModeEditorSheet(
             }
 
             if (concept.schedule.isOn) {
+                // Op tijd of op locatie. Bij wisselen ook het einde omzetten:
+                // "op tijd eindigen" bestaat niet bij een locatie, "als je
+                // weggaat" niet bij tijd.
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(top = 14.dp)) {
+                    listOf(ScheduleTrigger.TIME, ScheduleTrigger.LOCATION).forEachIndexed { i, soort ->
+                        SegmentedButton(
+                            selected = concept.schedule.trigger == soort,
+                            onClick = {
+                                val eind = when {
+                                    soort == ScheduleTrigger.LOCATION && concept.schedule.end is ScheduleEnd.Time -> ScheduleEnd.Leave
+                                    soort == ScheduleTrigger.TIME && concept.schedule.end is ScheduleEnd.Leave -> ScheduleEnd.Time(17, 0)
+                                    else -> concept.schedule.end
+                                }
+                                concept = concept.copy(schedule = concept.schedule.copy(trigger = soort, end = eind))
+                            },
+                            shape = SegmentedButtonDefaults.itemShape(i, 2)
+                        ) {
+                            Text(stringResource(
+                                if (soort == ScheduleTrigger.TIME) R.string.sched_trigger_time else R.string.sched_trigger_location
+                            ))
+                        }
+                    }
+                }
+
+                if (concept.schedule.trigger == ScheduleTrigger.TIME) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -198,6 +228,52 @@ fun ModeEditorSheet(
                         if (concept.schedule.end is ScheduleEnd.Tap)
                             "Toch een vaste eindtijd" else "Laat lopen tot ik tik"
                     )
+                }
+
+                } else {
+                    // De plek, met een knop naar de kiezer.
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 14.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable { plekKiezer = true }
+                            .padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Filled.Place, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Text(
+                            concept.schedule.place?.name ?: stringResource(R.string.loc_choose),
+                            modifier = Modifier.padding(start = 10.dp).weight(1f),
+                            fontWeight = FontWeight.Medium
+                        )
+                        Icon(Icons.Filled.ChevronRight, contentDescription = null)
+                    }
+
+                    Kop(stringResource(R.string.sched_ends))
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        listOf(ScheduleEnd.Leave, ScheduleEnd.Tap).forEachIndexed { i, eind ->
+                            SegmentedButton(
+                                selected = concept.schedule.end == eind,
+                                onClick = { concept = concept.copy(schedule = concept.schedule.copy(end = eind)) },
+                                shape = SegmentedButtonDefaults.itemShape(i, 2)
+                            ) {
+                                Text(stringResource(
+                                    if (eind == ScheduleEnd.Leave) R.string.sched_end_leave else R.string.sched_end_tap
+                                ))
+                            }
+                        }
+                    }
+                    Text(
+                        stringResource(R.string.sched_location_help),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    if (!locatieToegang.background) {
+                        LocationPermissionCard(locatieToegang, modifier = Modifier.padding(top = 12.dp))
+                    }
                 }
 
                 Kop("Dagen")
@@ -267,10 +343,24 @@ fun ModeEditorSheet(
                         if (isNew) store.addMode(concept) else store.update(concept)
                         onDismiss()
                     },
-                    enabled = concept.name.isNotBlank()
+                    // Een schema op locatie zonder plek kan niet bewaard worden.
+                    enabled = concept.name.isNotBlank() &&
+                        !(concept.schedule.isOn && concept.schedule.trigger == ScheduleTrigger.LOCATION &&
+                            concept.schedule.place == null)
                 ) { Text("Bewaar") }
             }
         }
+    }
+
+    if (plekKiezer) {
+        PlacePickerSheet(
+            initial = concept.schedule.place,
+            onDismiss = { plekKiezer = false },
+            onChoose = {
+                concept = concept.copy(schedule = concept.schedule.copy(place = it))
+                plekKiezer = false
+            }
+        )
     }
 
     if (kiezerOpen) {

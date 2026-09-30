@@ -63,4 +63,25 @@
     <string name="sched_weekend">weekend</string>
     <string name="sched_no_day">geen dag</string>
     <string name="sched_no_place">geen locatie gekozen</string>
+    <string name="notify_until_leave">je weggaat</string>
+    <string name="loc_title">Locatie</string>
+    <string name="loc_search_hint">Zoek een plek of adres</string>
+    <string name="loc_search">Zoek</string>
+    <string name="loc_current">Gebruik mijn huidige locatie</string>
+    <string name="loc_no_results">Niets gevonden. Probeer een ander adres.</string>
+    <string name="loc_radius">Straal: %1$d m</string>
+    <string name="loc_radius_help">Zodra je binnen deze cirkel komt, begint de modus. Android merkt dat niet op de meter nauwkeurig; een straal van 150 m of meer werkt het betrouwbaarst.</string>
+    <string name="loc_choose">Kies locatie</string>
+    <string name="loc_default_name">Locatie</string>
+    <string name="loc_perm_title">Locatietoegang ‘Altijd toestaan’ nodig</string>
+    <string name="loc_perm_body">Alleen dan kan Totem de modus starten als de app dicht is. Je locatie blijft op je telefoon; Totem kijkt alleen of je bij deze plek bent.</string>
+    <string name="loc_perm_button">Toestemming geven</string>
+    <string name="loc_perm_settings">Open instellingen</string>
+    <string name="sched_trigger_time">Op tijd</string>
+    <string name="sched_trigger_location">Op locatie</string>
+    <string name="sched_end_leave">Als je weggaat</string>
+    <string name="sched_end_tap">Als je tikt</string>
+    <string name="sched_ends">Eindigt</string>
+    <string name="sched_location_help">Deze modus begint vanzelf als je op de gekozen dagen bij deze plek aankomt. Kies je ‘Als je tikt’, dan stopt de blokkade pas als je je Totem aantikt, ook als je weggaat.</string>
+    <string name="done">Gereed</string>
 </resources>

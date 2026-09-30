@@ -2,6 +2,7 @@ package nl.totem.app.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import nl.totem.app.R
@@ -62,6 +63,19 @@ fun DebugShots(kind: String, store: AppStore) {
                 store.load()
             }
             ModesScreen(store, onOpenMode = {}, onOpenSettings = {}, onOpenStats = {}, onAddMode = {})
+        }
+
+        "editor" -> {
+            val modi = remember { voorbeeldModi(context) }
+            LaunchedEffect(kind) {
+                SharedStore.init(context)
+                SharedStore.totem = PairedTotem("DEMO", "Demo Totem", 0L, isDemo = true)
+                SharedStore.session = null
+                SharedStore.modes = modi
+                store.load()
+            }
+            ModesScreen(store, onOpenMode = {}, onOpenSettings = {}, onOpenStats = {}, onAddMode = {})
+            ModeEditorSheet(store = store, mode = modi[1], onDismiss = {})
         }
 
         else -> RootScreen(store)

@@ -65,4 +65,25 @@
     <string name="sched_weekend">weekend</string>
     <string name="sched_no_day">no days</string>
     <string name="sched_no_place">no location chosen</string>
+    <string name="notify_until_leave">you leave</string>
+    <string name="loc_title">Location</string>
+    <string name="loc_search_hint">Search for a place or address</string>
+    <string name="loc_search">Search</string>
+    <string name="loc_current">Use my current location</string>
+    <string name="loc_no_results">Nothing found. Try another address.</string>
+    <string name="loc_radius">Radius: %1$d m</string>
+    <string name="loc_radius_help">The mode starts as soon as you enter this circle. Android doesn’t detect this to the metre; a radius of 150 m or more works most reliably.</string>
+    <string name="loc_choose">Choose location</string>
+    <string name="loc_default_name">Location</string>
+    <string name="loc_perm_title">Location access ‘Allow all the time’ needed</string>
+    <string name="loc_perm_body">Only then can Totem start the mode while the app is closed. Your location stays on your phone; Totem only checks whether you’re at this place.</string>
+    <string name="loc_perm_button">Give permission</string>
+    <string name="loc_perm_settings">Open settings</string>
+    <string name="sched_trigger_time">At a time</string>
+    <string name="sched_trigger_location">By location</string>
+    <string name="sched_end_leave">When you leave</string>
+    <string name="sched_end_tap">When you tap</string>
+    <string name="sched_ends">Ends</string>
+    <string name="sched_location_help">This mode starts automatically when you arrive at this place on the chosen days. Choose ‘When you tap’ and the block only stops when you tap your Totem, even if you leave.</string>
+    <string name="done">Done</string>
 </resources>

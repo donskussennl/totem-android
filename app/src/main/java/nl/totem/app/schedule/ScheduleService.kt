@@ -3,6 +3,7 @@ package nl.totem.app.schedule
 import nl.totem.app.model.FocusMode
 import nl.totem.app.model.Schedule
 import nl.totem.app.model.ScheduleEnd
+import nl.totem.app.model.ScheduleTrigger
 import java.util.Calendar
 
 /**
@@ -81,18 +82,51 @@ object ScheduleService {
     fun modeThatShouldRun(
         modes: List<FocusMode>,
         nu: Long = System.currentTimeMillis(),
-        dismissed: Map<String, Long> = emptyMap()
+        dismissed: Map<String, Long> = emptyMap(),
+        arrivals: Map<String, Long> = emptyMap()
     ): FocusMode? = modes.firstOrNull { mode ->
         if (!mode.schedule.isOn || !mode.isConfigured) return@firstOrNull false
-        val start = windowStart(mode.schedule, nu) ?: return@firstOrNull false
+        val start = activeSince(mode, nu, arrivals) ?: return@firstOrNull false
         val tappedAway = dismissed[mode.id]
         !(tappedAway != null && tappedAway >= start)
     }
 
+    /**
+     * Sinds wanneer deze modus volgens zijn schema actief hoort te zijn, of
+     * null als dat nu niet zo is. Op tijd: het begin van het venster. Op
+     * locatie: het moment waarop je aankwam.
+     */
+    fun activeSince(
+        mode: FocusMode,
+        nu: Long = System.currentTimeMillis(),
+        arrivals: Map<String, Long> = emptyMap()
+    ): Long? {
+        val schedule = mode.schedule
+        return when (schedule.trigger) {
+            ScheduleTrigger.TIME -> windowStart(schedule, nu)
+            ScheduleTrigger.LOCATION -> {
+                if (!schedule.isLocationBased) return null
+                val vandaag = Calendar.getInstance().apply { timeInMillis = nu }
+                    .get(Calendar.DAY_OF_WEEK)
+                if (vandaag !in schedule.weekdays) return null
+                arrivals[mode.id]
+            }
+        }
+    }
+
     /** Moet een lopende, door een schema gestarte sessie nu stoppen? */
-    fun shouldStop(mode: FocusMode, nu: Long = System.currentTimeMillis()): Boolean {
+    fun shouldStop(
+        mode: FocusMode,
+        nu: Long = System.currentTimeMillis(),
+        arrivals: Map<String, Long> = emptyMap()
+    ): Boolean {
         if (!mode.schedule.isOn) return true
         if (mode.schedule.end is ScheduleEnd.Tap) return false   // wacht op een tik
-        return !isWithinWindow(mode.schedule, nu)
+        return when (mode.schedule.trigger) {
+            ScheduleTrigger.TIME -> !isWithinWindow(mode.schedule, nu)
+            // Stoppen zodra je weg bent. De dag telt hier niet: blijf je na
+            // middernacht nog even, dan loopt de blokkade gewoon door.
+            ScheduleTrigger.LOCATION -> !mode.schedule.isLocationBased || mode.id !in arrivals
+        }
     }
 }
