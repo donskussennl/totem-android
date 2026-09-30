@@ -37,6 +37,7 @@ object SharedStore {
     private const val KEY_A11Y_CONSENT = "totem.a11y.consent"
     private const val KEY_A11Y_CONSENT_AT = "totem.a11y.consent.at"
     private const val KEY_ARRIVALS = "totem.location.arrivals"
+    private const val KEY_SETUP_DONE = "totem.setupDone"
 
     val json = Json {
         ignoreUnknownKeys = true
@@ -140,6 +141,11 @@ object SharedStore {
     /** Wanneer die toestemming is gegeven, of 0 als dat niet is gebeurd. */
     val accessibilityConsentAt: Long
         get() = prefs.getLong(KEY_A11Y_CONSENT_AT, 0L)
+
+    /** Of de wizard voor de eerste modus is doorlopen (of overgeslagen). */
+    var setupDone: Boolean
+        get() = prefs.getBoolean(KEY_SETUP_DONE, false)
+        set(value) = prefs.edit().putBoolean(KEY_SETUP_DONE, value).apply()
 
     var hasOnboarded: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDED, false)

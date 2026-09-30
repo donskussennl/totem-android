@@ -31,9 +31,11 @@ fun WeekdayPicker(
     onChange: (Set<Int>) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val dagen = listOf(
-        2 to "M", 3 to "D", 4 to "W", 5 to "D", 6 to "V", 7 to "Z", 1 to "Z"
-    )
+    // Maandag eerst; de letters komen van Android, dus in de taal van de
+    // telefoon (M D W D V Z Z, of M T W T F S S).
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val letters = androidx.compose.runtime.remember(context) { Texts.dayLetters(context) }
+    val dagen = listOf(2, 3, 4, 5, 6, 7, 1).map { it to (letters[it] ?: "") }
 
     Row(
         modifier = modifier.fillMaxWidth(),

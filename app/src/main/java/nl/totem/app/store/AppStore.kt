@@ -81,14 +81,17 @@ class AppStore(app: Application) : AndroidViewModel(app) {
 
     val isScanning: Boolean get() = _scanRequest.value != null
 
+    /**
+     * True zolang de wizard nog niet is doorlopen. Wie al een ingestelde modus
+     * heeft (van vóór de wizard), slaat hem over.
+     */
+    private val _needsSetup = MutableStateFlow(false)
+    val needsSetup: StateFlow<Boolean> = _needsSetup.asStateFlow()
+
     init {
         SharedStore.init(context)
         PinService.init(context)
         load()
-        if (_modes.value.isEmpty()) {
-            _modes.value = FocusMode.defaults()
-            SharedStore.modes = _modes.value
-        }
         refreshEmergencyPeriod()
 
         // Meeluisteren met alles wat buiten de app om gebeurt: een wekker, het
@@ -137,6 +140,24 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         if (_session.value != null) SessionEngine.stop(context, bySchedule = false)
         _totem.value = null
         SharedStore.totem = null
+    }
+
+    // MARK: - Eerste keer instellen
+
+    /**
+     * Rondt de wizard af. Lege standaardmodi van vroeger ruimen we op, zodat
+     * je niet naast je nieuwe "Werk" nog een lege "Werk" ziet staan.
+     */
+    fun finishSetup(mode: FocusMode?) {
+        val plaatshouders = setOf("Werk", "Slaap", "Relaxen")
+        _modes.value.filter { !it.isConfigured && !it.schedule.isOn && it.name in plaatshouders }
+            .forEach { ActivityScheduler.cancel(context, it.id) }
+        _modes.value = _modes.value.filterNot {
+            !it.isConfigured && !it.schedule.isOn && it.name in plaatshouders
+        } + listOfNotNull(mode)
+        SharedStore.setupDone = true
+        _needsSetup.value = false
+        persistModes()
     }
 
     // MARK: - Modi
@@ -509,6 +530,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         _history.value = SharedStore.history
         _emergencyUsed.value = SharedStore.emergencyUsed
         _strictMode.value = SharedStore.strictMode
+        _needsSetup.value = !SharedStore.setupDone && _modes.value.none { it.isConfigured }
     }
 
     /** Bij het openen van de app: kijken of de schema's nog kloppen. */

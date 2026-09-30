@@ -42,6 +42,7 @@ fun RootScreen(store: AppStore) {
     val modes by store.modes.collectAsStateWithLifecycle()
     val error by store.errorMessage.collectAsStateWithLifecycle()
     val awaitingChoice by store.awaitingModeChoice.collectAsStateWithLifecycle()
+    val needsSetup by store.needsSetup.collectAsStateWithLifecycle()
 
     /** Welk scherm er open staat bovenop de lijst. */
     var route by remember { mutableStateOf<Route>(Route.Modes) }
@@ -71,6 +72,9 @@ fun RootScreen(store: AppStore) {
             toonOnboarding -> Screen.Onboarding
             totem == null -> Screen.Pairing
             activeMode != null -> Screen.Active(activeMode.id)
+            // Net gekoppeld: stap voor stap de eerste modus instellen.
+            needsSetup -> Screen.Setup
+            nieuweModus -> Screen.NewMode
             else -> Screen.Normal
         },
         transitionSpec = {
@@ -91,6 +95,14 @@ fun RootScreen(store: AppStore) {
             )
 
             Screen.Pairing -> PairingScreen(store)
+
+            Screen.Setup -> SetupWizardScreen(store = store, isFirstRun = true, onClose = {})
+
+            Screen.NewMode -> SetupWizardScreen(
+                store = store,
+                isFirstRun = false,
+                onClose = { nieuweModus = false }
+            )
 
             is Screen.Active -> ModeDetailScreen(
                 store = store,
@@ -125,17 +137,6 @@ fun RootScreen(store: AppStore) {
                 )
             }
         }
-    }
-
-    // Een nieuwe modus: tijdelijk nog via de editor.
-    if (nieuweModus) {
-        val nieuw = remember { FocusMode(name = "", symbol = "circle") }
-        ModeEditorSheet(
-            store = store,
-            mode = nieuw,
-            isNew = true,
-            onDismiss = { nieuweModus = false }
-        )
     }
 
     // Je hebt getikt terwijl er niets liep: kiezen welke modus het wordt.
@@ -180,6 +181,8 @@ fun RootScreen(store: AppStore) {
 private sealed interface Screen {
     data object Onboarding : Screen
     data object Pairing : Screen
+    data object Setup : Screen
+    data object NewMode : Screen
     data class Active(val modeID: String) : Screen
     data object Normal : Screen
 }

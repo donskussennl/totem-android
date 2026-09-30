@@ -78,6 +78,8 @@ fun DebugShots(kind: String, store: AppStore) {
             ModeEditorSheet(store = store, mode = modi[1], onDismiss = {})
         }
 
+        "wizard" -> SetupWizardScreen(store = store, isFirstRun = true, onClose = {})
+
         else -> RootScreen(store)
     }
 }

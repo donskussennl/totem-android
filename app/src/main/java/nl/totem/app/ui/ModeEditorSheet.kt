@@ -458,7 +458,7 @@ private fun TijdVak(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TijdKiezerDialoog(
+internal fun TijdKiezerDialoog(
     beginUur: Int,
     beginMinuut: Int,
     onDismiss: () -> Unit,
