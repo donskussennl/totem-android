@@ -1,5 +1,7 @@
 package nl.totem.app.ui
 
+import nl.totem.app.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -161,10 +163,10 @@ fun RootScreen(store: AppStore) {
     if (error != null) {
         AlertDialog(
             onDismissRequest = { store.clearError() },
-            title = { Text("Er ging iets mis") },
+            title = { Text(stringResource(R.string.error_title)) },
             text = { Text(error ?: "") },
             confirmButton = {
-                TextButton(onClick = { store.clearError() }) { Text("Oké") }
+                TextButton(onClick = { store.clearError() }) { Text(stringResource(R.string.ok)) }
             }
         )
     }

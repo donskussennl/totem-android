@@ -79,8 +79,8 @@ class SessionService : Service() {
         // vanzelf doorlopen, ook als de app dicht is.
         return NotificationCompat.Builder(this, NotificationService.CHANNEL_SESSION)
             .setSmallIcon(R.drawable.ic_totem_notification)
-            .setContentTitle("$modeName loopt")
-            .setContentText("Tik je Totem aan als je weer verder wilt.")
+            .setContentTitle(getString(R.string.session_running, modeName))
+            .setContentText(getString(R.string.notify_started_tap))
             .setWhen(startedAt)
             .setUsesChronometer(true)
             .setShowWhen(true)

@@ -126,7 +126,7 @@ fun ModeDetailScreen(
             ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Terug",
+                    contentDescription = stringResource(R.string.back),
                     tint = tekstPrimair
                 )
             }
@@ -199,8 +199,7 @@ fun ModeDetailScreen(
                                 bevestigNood = true
                             } else {
                                 store.showError(
-                                    "Je hebt deze maand al ${AppStore.EMERGENCY_LIMIT} " +
-                                        "noodontgrendelingen gebruikt. Tik je Totem aan om te stoppen."
+                                    context.getString(R.string.emergency_used_up_tap, AppStore.EMERGENCY_LIMIT)
                                 )
                             }
                         }
@@ -217,7 +216,7 @@ fun ModeDetailScreen(
             }
 
             Text(
-                text = if (isActive) "${mode.blockedCount} apps geblokkeerd" else mode.name,
+                text = if (isActive) stringResource(R.string.detail_apps_blocked, mode.blockedCount) else mode.name,
                 fontSize = if (isActive) 15.sp else 30.sp,
                 fontWeight = if (isActive) FontWeight.Normal else FontWeight.SemiBold,
                 color = if (isActive) tekstSecundair else tekstPrimair,
@@ -226,14 +225,14 @@ fun ModeDetailScreen(
 
             if (!isActive) {
                 Text(
-                    text = "${mode.blockedCount} apps geblokkeerd",
+                    text = stringResource(R.string.detail_apps_blocked, mode.blockedCount),
                     fontSize = 15.sp,
                     color = tekstSecundair,
                     modifier = Modifier.padding(top = 6.dp)
                 )
                 if (mode.schedule.isOn) {
                     Text(
-                        text = mode.schedule.timeText,
+                        text = scheduleSummary(mode.schedule) ?: "",
                         fontSize = 14.sp,
                         color = tekstSecundair,
                         modifier = Modifier.padding(top = 4.dp)
@@ -243,7 +242,7 @@ fun ModeDetailScreen(
                     onClick = { bewerken = true },
                     modifier = Modifier.padding(top = 14.dp)
                 ) {
-                    Text("Modus aanpassen  ›", color = tekstSecundair, fontSize = 15.sp)
+                    Text(stringResource(R.string.detail_edit_mode), color = tekstSecundair, fontSize = 15.sp)
                 }
             }
 
@@ -287,12 +286,10 @@ fun ModeDetailScreen(
     if (bevestigNood) {
         AlertDialog(
             onDismissRequest = { bevestigNood = false },
-            title = { Text("Blokkade opheffen zonder Totem?") },
+            title = { Text(stringResource(R.string.emergency_q)) },
             text = {
                 Text(
-                    "Je hebt nog $noodOver van de " +
-                        "${AppStore.EMERGENCY_LIMIT} noodontgrendelingen deze maand. " +
-                        "Daarna kun je pas volgende maand weer zonder Totem ontgrendelen."
+                    stringResource(R.string.emergency_left_body, noodOver, AppStore.EMERGENCY_LIMIT)
                 )
             },
             confirmButton = {
@@ -302,10 +299,10 @@ fun ModeDetailScreen(
                     // schakelaar nergens op uitkomen.
                     if (store.emergencyNeedsPin) pincodeVoorNood = true
                     else store.useEmergencyUnlock()
-                }) { Text("Gebruik noodontgrendeling") }
+                }) { Text(stringResource(R.string.emergency_use)) }
             },
             dismissButton = {
-                TextButton(onClick = { bevestigNood = false }) { Text("Annuleer") }
+                TextButton(onClick = { bevestigNood = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -313,7 +310,7 @@ fun ModeDetailScreen(
     if (pincodeVoorNood) {
         PinDialog(
             purpose = PinPurpose.Verify(
-                "Voer je pincode in om zonder Totem te ontgrendelen."
+                stringResource(R.string.pin_emergency)
             ),
             onDismiss = { pincodeVoorNood = false },
             onSuccess = {

@@ -1,5 +1,6 @@
 package nl.totem.app.ui
 
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -107,15 +108,13 @@ fun PairingScreen(store: AppStore) {
                 .padding(horizontal = 24.dp)
         ) {
             Text(
-                text = "Koppel je Totem",
+                text = stringResource(R.string.pair_title),
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                text = "Houd je telefoon tegen de bovenkant van je Totem. " +
-                    "De app onthoudt daarna welk apparaat van jou is. " +
-                    "Je hoeft nergens op te drukken — Totem leest mee zolang dit scherm open staat.",
+                text = stringResource(R.string.pair_body),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 6.dp)
@@ -129,7 +128,7 @@ fun PairingScreen(store: AppStore) {
                     // nodig, de lezer staat al aan.
                     store.pairingName = it
                 },
-                label = { Text("Naam") },
+                label = { Text(stringResource(R.string.set_name)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 modifier = Modifier
@@ -139,7 +138,7 @@ fun PairingScreen(store: AppStore) {
         }
 
         Button(
-            onClick = { store.pairTotem(naam.ifBlank { "Mijn Totem" }) },
+            onClick = { store.pairTotem(naam.ifBlank { context.getString(R.string.my_totem) }) },
             // Met het codewoord kan er zonder NFC gekoppeld worden, zodat
             // een reviewer op een toestel zonder NFC toch verder komt.
             enabled = (heeftNfc && nfcAan) ||
@@ -150,19 +149,19 @@ fun PairingScreen(store: AppStore) {
                 .padding(top = 20.dp)
         ) {
             Icon(Icons.Filled.Nfc, contentDescription = null)
-            Text("Scan je Totem", modifier = Modifier.padding(start = 8.dp))
+            Text(stringResource(R.string.pair_scan), modifier = Modifier.padding(start = 8.dp))
         }
 
         if (!heeftNfc) {
             Text(
-                text = "Dit toestel ondersteunt geen NFC.",
+                text = stringResource(R.string.pair_no_nfc),
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 10.dp, start = 24.dp, end = 24.dp)
             )
         } else if (!nfcAan) {
             Text(
-                text = "NFC staat uit. Zet het aan in de instellingen van je telefoon.",
+                text = stringResource(R.string.err_nfc_off),
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 10.dp, start = 24.dp, end = 24.dp)

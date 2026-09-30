@@ -142,7 +142,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
 
     // MARK: - Koppelen
 
-    fun pairTotem(name: String = "Mijn Totem") {
+    fun pairTotem(name: String = context.getString(R.string.my_totem)) {
         // Zonder Totem koppelen, voor App Review en Play Review.
         if (name.trim().uppercase() == PairedTotem.DEMO_CODE) {
             val demo = PairedTotem(
@@ -158,7 +158,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
 
         _scanRequest.value = ScanRequest(
             purpose = ScanPurpose.PAIR,
-            prompt = "Houd je telefoon tegen je Totem om te koppelen",
+            prompt = context.getString(R.string.scan_pair),
             name = name
         )
     }
@@ -300,11 +300,11 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         if (!isPaired) return
         if (!mode.isConfigured) {
             _errorMessage.value =
-                "Kies eerst welke apps geblokkeerd moeten worden in deze modus."
+                context.getString(R.string.err_choose_apps)
             return
         }
         if (!ShieldService.isReady(context)) {
-            _errorMessage.value = TotemError.NotAuthorized.text
+            _errorMessage.value = context.getString(R.string.err_not_authorized)
             return
         }
         if (_totem.value?.isDemo == true) {
@@ -313,7 +313,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         }
         _scanRequest.value = ScanRequest(
             purpose = ScanPurpose.START,
-            prompt = "Tik je Totem aan om ‘${mode.name}’ te starten",
+            prompt = context.getString(R.string.scan_start, mode.name),
             modeID = mode.id
         )
     }
@@ -345,7 +345,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         }
         _scanRequest.value = ScanRequest(
             purpose = ScanPurpose.STOP,
-            prompt = "Tik je Totem aan om te ontgrendelen"
+            prompt = context.getString(R.string.scan_unlock)
         )
     }
 
@@ -360,7 +360,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
             // alleen via een echte scan, want alleen daar lezen we de
             // handtekening uit het taggeheugen.
             _errorMessage.value =
-                "Koppel eerst je Totem in de app; houd hem dan tegen de telefoon."
+                context.getString(R.string.err_pair_first)
             return
         }
         // Elke Totem mag bedienen, net als op iOS -- er wordt hier bewust niet
@@ -384,7 +384,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         _awaitingModeChoice.value = false
         if (!mode.isConfigured) return
         if (!ShieldService.isReady(context)) {
-            _errorMessage.value = TotemError.NotAuthorized.text
+            _errorMessage.value = context.getString(R.string.err_not_authorized)
             return
         }
         SessionEngine.start(context, mode, bySchedule = false)
@@ -397,7 +397,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
     // MARK: - Antwoord van de lezer
 
     /** De naam die op het koppelscherm is ingetypt. */
-    var pairingName: String = "Mijn Totem"
+    var pairingName: String = context.getString(R.string.my_totem)
 
     /**
      * Er is een tag gelezen.
@@ -415,7 +415,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
     fun onTagRead(result: Result<Pair<String, ByteArray?>>) {
         result.onFailure { error ->
             if (error !is TotemError.Cancelled) {
-                _errorMessage.value = (error as? TotemError)?.text ?: error.message
+                _errorMessage.value = (error as? TotemError)?.textRes?.let { context.getString(it) } ?: error.message
             }
             return
         }
@@ -479,10 +479,10 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         }.getOrDefault(ByteArray(0))
 
         if (!TotemAuth.isGenuine(uidBytes, payload)) {
-            _errorMessage.value = TotemError.WrongTag.text
+            _errorMessage.value = context.getString(R.string.err_wrong_tag)
             return
         }
-        savePaired(uid, name.ifBlank { "Mijn Totem" })
+        savePaired(uid, name.ifBlank { context.getString(R.string.my_totem) })
     }
 
     fun cancelScan() {
@@ -516,7 +516,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
     private fun accepteerTotem(uid: String, payload: ByteArray?): Boolean {
         if (ALLEEN_EIGEN_TOTEM) {
             if (matchesPairedTotem(uid)) return true
-            _errorMessage.value = TotemError.WrongTag.text
+            _errorMessage.value = context.getString(R.string.err_wrong_tag)
             return false
         }
 
@@ -525,7 +525,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         }.getOrDefault(ByteArray(0))
 
         if (TotemAuth.isGenuine(uidBytes, payload)) return true
-        _errorMessage.value = TotemError.NotATotem.text
+        _errorMessage.value = context.getString(R.string.err_not_totem)
         return false
     }
 
@@ -570,8 +570,8 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         refreshEmergencyPeriod()
         _emergencyUsed.value = SharedStore.emergencyUsed
         if (EMERGENCY_LIMIT - _emergencyUsed.value <= 0) {
-            _errorMessage.value = "Je hebt deze maand al $EMERGENCY_LIMIT " +
-                "noodontgrendelingen gebruikt. Volgende maand krijg je er weer $EMERGENCY_LIMIT."
+            _errorMessage.value =
+                context.getString(R.string.emergency_used_up, EMERGENCY_LIMIT, EMERGENCY_LIMIT)
             return false
         }
         if (_session.value == null) return false

@@ -1,5 +1,6 @@
 package nl.totem.app.ui
 
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,9 +65,10 @@ fun ModeEditorSheet(
     store: AppStore,
     mode: FocusMode,
     onDismiss: () -> Unit,
-    /** Een nieuwe modus: pas bij "Bewaar" toevoegen, en geen verwijderknop. */
+    /** Een nieuwe modus: pas bij stringResource(R.string.save) toevoegen, en geen verwijderknop. */
     isNew: Boolean = false
 ) {
+    val context = LocalContext.current
     var concept by remember(mode.id) { mutableStateOf(mode) }
     var kiezerOpen by remember { mutableStateOf(false) }
     var tijdKiezer by remember { mutableStateOf<TijdSoort?>(null) }
@@ -82,19 +84,19 @@ fun ModeEditorSheet(
                 .padding(horizontal = 20.dp)
                 .padding(bottom = 32.dp)
         ) {
-            Text("Modus", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.editor_mode), fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
 
             OutlinedTextField(
                 value = concept.name,
                 onValueChange = { concept = concept.copy(name = it) },
-                label = { Text("Naam") },
+                label = { Text(stringResource(R.string.set_name)) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp)
             )
 
-            Kop("Icoon")
+            Kop(stringResource(R.string.editor_icon))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -116,7 +118,7 @@ fun ModeEditorSheet(
                 }
             }
 
-            Kop("Blokkeren")
+            Kop(stringResource(R.string.editor_blocking))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -126,7 +128,7 @@ fun ModeEditorSheet(
             ) {
                 Icon(Icons.Filled.Apps, contentDescription = null)
                 Text(
-                    "Apps om te blokkeren",
+                    stringResource(R.string.editor_apps_to_block),
                     modifier = Modifier.padding(start = 12.dp).weight(1f)
                 )
                 Text(
@@ -135,7 +137,7 @@ fun ModeEditorSheet(
                 )
             }
             Text(
-                "Deze apps zijn niet bereikbaar zolang deze modus actief is.",
+                stringResource(R.string.editor_apps_help),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -148,9 +150,9 @@ fun ModeEditorSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Schema", fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.editor_schedule), fontWeight = FontWeight.Medium)
                     Text(
-                        "Laat deze modus vanzelf beginnen op vaste tijden.",
+                        stringResource(R.string.editor_schedule_help),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -194,20 +196,17 @@ fun ModeEditorSheet(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     TijdVak(
-                        label = "Van",
-                        waarde = "%02d:%02d".format(
-                            concept.schedule.startHour,
-                            concept.schedule.startMinute
-                        ),
+                        label = stringResource(R.string.wiz_from),
+                        waarde = Texts.clock(context, concept.schedule.startHour, concept.schedule.startMinute),
                         modifier = Modifier.weight(1f)
                     ) { tijdKiezer = TijdSoort.START }
 
                     val eind = concept.schedule.end
                     TijdVak(
-                        label = "Tot",
+                        label = stringResource(R.string.wiz_to),
                         waarde = when (eind) {
-                            is ScheduleEnd.Time -> "%02d:%02d".format(eind.hour, eind.minute)
-                            is ScheduleEnd.Tap, is ScheduleEnd.Leave -> "Als je tikt"
+                            is ScheduleEnd.Time -> Texts.clock(context, eind.hour, eind.minute)
+                            is ScheduleEnd.Tap, is ScheduleEnd.Leave -> stringResource(R.string.sched_end_tap)
                         },
                         modifier = Modifier.weight(1f)
                     ) { tijdKiezer = TijdSoort.EIND }
@@ -226,7 +225,7 @@ fun ModeEditorSheet(
                 ) {
                     Text(
                         if (concept.schedule.end is ScheduleEnd.Tap)
-                            "Toch een vaste eindtijd" else "Laat lopen tot ik tik"
+                            stringResource(R.string.editor_fixed_end) else stringResource(R.string.editor_until_tap)
                     )
                 }
 
@@ -276,7 +275,7 @@ fun ModeEditorSheet(
                     }
                 }
 
-                Kop("Dagen")
+                Kop(stringResource(R.string.editor_days))
                 WeekdayPicker(
                     selection = concept.schedule.weekdays,
                     onChange = {
@@ -328,7 +327,7 @@ fun ModeEditorSheet(
                         tint = MaterialTheme.colorScheme.error
                     )
                     Text(
-                        "Verwijder",
+                        stringResource(R.string.delete_confirm),
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(start = 6.dp)
                     )
@@ -336,7 +335,7 @@ fun ModeEditorSheet(
 
                 Box(modifier = Modifier.weight(1f))
 
-                TextButton(onClick = onDismiss) { Text("Annuleer") }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
 
                 Button(
                     onClick = {
@@ -347,7 +346,7 @@ fun ModeEditorSheet(
                     enabled = concept.name.isNotBlank() &&
                         !(concept.schedule.isOn && concept.schedule.trigger == ScheduleTrigger.LOCATION &&
                             concept.schedule.place == null)
-                ) { Text("Bewaar") }
+                ) { Text(stringResource(R.string.save)) }
             }
         }
     }
@@ -473,10 +472,10 @@ internal fun TijdKiezerDialoog(
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = { onGereed(state.hour, state.minute) }) { Text("Gereed") }
+            TextButton(onClick = { onGereed(state.hour, state.minute) }) { Text(stringResource(R.string.done)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Annuleer") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         },
         text = { TimePicker(state = state) }
     )

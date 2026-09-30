@@ -1,5 +1,6 @@
 package nl.totem.app.widget
 
+import nl.totem.app.R
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -72,7 +73,7 @@ class TotemWidget : GlanceAppWidget() {
                             modifier = GlanceModifier.padding(top = 4.dp)
                         )
                         Text(
-                            text = "Tik je Totem aan",
+                            text = context.getString(R.string.widget_tap),
                             style = TextStyle(
                                 color = androidx.glance.unit.ColorProvider(Color(0xFF6E6E6E)),
                                 fontSize = 11.sp
@@ -89,7 +90,7 @@ class TotemWidget : GlanceAppWidget() {
                             )
                         )
                         Text(
-                            text = "Geen blokkade",
+                            text = context.getString(R.string.widget_no_block),
                             style = TextStyle(
                                 color = androidx.glance.unit.ColorProvider(Color(0xFF6B6B6B)),
                                 fontSize = 12.sp

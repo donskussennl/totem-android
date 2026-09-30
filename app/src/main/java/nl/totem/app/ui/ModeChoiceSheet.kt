@@ -1,5 +1,7 @@
 package nl.totem.app.ui
 
+import nl.totem.app.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -41,13 +43,13 @@ fun ModeChoiceSheet(store: AppStore, onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp)) {
             Text(
-                text = "Totem aangetikt",
+                text = stringResource(R.string.choice_tapped),
                 fontSize = 19.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(start = 20.dp)
             )
             Text(
-                text = "Kies een modus om te starten.",
+                text = stringResource(R.string.choice_body),
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 20.dp, top = 2.dp, bottom = 10.dp)
@@ -74,7 +76,7 @@ fun ModeChoiceSheet(store: AppStore, onDismiss: () -> Unit) {
                     Column(modifier = Modifier.padding(start = 14.dp)) {
                         Text(mode.name)
                         Text(
-                            text = if (mode.isConfigured) mode.summary else "Nog niets ingesteld",
+                            text = Texts.modeSummary(androidx.compose.ui.platform.LocalContext.current, mode),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -85,7 +87,7 @@ fun ModeChoiceSheet(store: AppStore, onDismiss: () -> Unit) {
             TextButton(
                 onClick = onDismiss,
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp)
-            ) { Text("Later") }
+            ) { Text(stringResource(R.string.later)) }
         }
     }
 }

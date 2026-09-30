@@ -133,3 +133,12 @@ Twee dingen zijn daarbij van levensbelang:
   en heeft geen Android nodig.
 - De ringen op het scanscherm zijn getekend, niet geanimeerd zoals de
   iOS-versie; de Totem-afbeeldingen zijn wel overgenomen.
+
+## Google Play: locatie op de achtergrond
+
+Locatieschema's gebruiken geofences en vragen daarom `ACCESS_BACKGROUND_LOCATION`.
+Google Play vraagt hiervoor in de Play Console een aparte verklaring
+(App-inhoud → Locatierechten) met een korte video die laat zien hoe de gebruiker
+een locatieschema instelt en toestemming geeft. Zonder die verklaring wordt de
+update afgewezen. Locatie staat standaard uit; alleen wie zelf een
+locatieschema maakt, krijgt de vraag om toestemming.

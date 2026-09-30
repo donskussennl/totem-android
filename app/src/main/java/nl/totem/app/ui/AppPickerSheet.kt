@@ -1,5 +1,7 @@
 package nl.totem.app.ui
 
+import nl.totem.app.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -80,21 +82,21 @@ fun AppPickerSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Apps om te blokkeren", fontSize = 19.sp)
+                    Text(stringResource(R.string.editor_apps_to_block), fontSize = 19.sp)
                     Text(
-                        "${keuze.size} gekozen",
+                        stringResource(R.string.picker_chosen, keuze.size),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                TextButton(onClick = onDismiss) { Text("Annuleer") }
-                Button(onClick = { onGereed(keuze) }) { Text("Gereed") }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                Button(onClick = { onGereed(keuze) }) { Text(stringResource(R.string.done)) }
             }
 
             OutlinedTextField(
                 value = zoek,
                 onValueChange = { zoek = it },
-                label = { Text("Zoeken") },
+                label = { Text(stringResource(R.string.picker_search)) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -121,9 +123,9 @@ fun AppPickerSheet(
                         }
                     ) {
                         Text(
-                            if (allesAan) "Alles uitzetten" else
-                                if (zoek.isBlank()) "Alles selecteren"
-                                else "Alle ${zichtbaar.size} treffers selecteren"
+                            if (allesAan) stringResource(R.string.picker_none) else
+                                if (zoek.isBlank()) stringResource(R.string.picker_all)
+                                else stringResource(R.string.picker_all_results, zichtbaar.size)
                         )
                     }
 
@@ -131,7 +133,7 @@ fun AppPickerSheet(
 
                     if (keuze.isNotEmpty()) {
                         TextButton(onClick = { keuze = emptySet() }) {
-                            Text("Selectie wissen")
+                            Text(stringResource(R.string.picker_clear))
                         }
                     }
                 }

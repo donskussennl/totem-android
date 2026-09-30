@@ -121,16 +121,6 @@ data class Schedule(
         val PAUSE_OPTIONS = listOf(5, 10, 15)
     }
 
-    /** "09:00 – 17:00" of "22:00 – als je tikt". */
-    val timeText: String
-        get() {
-            val start = "%02d:%02d".format(startHour, startMinute)
-            val stop = when (end) {
-                is ScheduleEnd.Time -> "%02d:%02d".format(end.hour, end.minute)
-                is ScheduleEnd.Tap, is ScheduleEnd.Leave -> "als je tikt"
-            }
-            return "$start – $stop"
-        }
 }
 
 /**
@@ -155,12 +145,7 @@ data class FocusMode(
 
     // (Meer dan tien modi maakt de lijst onoverzichtelijk; zie MAX_COUNT.)
 
-    /** Korte samenvatting onder de naam in de lijst. */
-    val summary: String
-        get() = buildString {
-            append("$blockedCount geblokkeerd")
-            if (schedule.isOn) append(" · ${schedule.timeText}")
-        }
+    // Samenvattingen voor op het scherm staan in ui/Texts.kt, in de taal van de telefoon.
 
     companion object {
         /** Meer dan tien modi maakt de lijst onoverzichtelijk. */
@@ -227,21 +212,16 @@ data class SessionLog(
  * [Cancelled] is bewust geen echte fout: die betekent alleen dat het
  * scanvenster is weggeklikt.
  */
-sealed class TotemError(val text: String?) : Exception(text) {
-    data object WrongTag :
-        TotemError("Dit is niet jouw Totem. Houd je eigen Totem tegen de telefoon.")
+sealed class TotemError(@androidx.annotation.StringRes val textRes: Int?) : Exception() {
+    data object WrongTag : TotemError(nl.totem.app.R.string.err_wrong_tag)
 
-    data object NotATotem :
-        TotemError("Dit is geen echte Totem.")
+    data object NotATotem : TotemError(nl.totem.app.R.string.err_not_totem)
 
-    data object NfcUnavailable :
-        TotemError("NFC is niet beschikbaar op dit toestel.")
+    data object NfcUnavailable : TotemError(nl.totem.app.R.string.err_nfc_unavailable)
 
-    data object NfcDisabled :
-        TotemError("NFC staat uit. Zet het aan in de instellingen van je telefoon.")
+    data object NfcDisabled : TotemError(nl.totem.app.R.string.err_nfc_off)
 
-    data object NotAuthorized :
-        TotemError("Geef Totem toegang tot toegankelijkheid om apps te kunnen blokkeren.")
+    data object NotAuthorized : TotemError(nl.totem.app.R.string.err_not_authorized)
 
     data object Cancelled : TotemError(null)
 }

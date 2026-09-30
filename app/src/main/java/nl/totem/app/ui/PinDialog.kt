@@ -1,5 +1,7 @@
 package nl.totem.app.ui
 
+import nl.totem.app.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +58,7 @@ fun PinDialog(
     onDismiss: () -> Unit,
     onSuccess: () -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     var eerste by remember { mutableStateOf("") }
     var tweede by remember { mutableStateOf("") }
     var fout by remember { mutableStateOf<String?>(null) }
@@ -75,7 +78,7 @@ fun PinDialog(
                     PinService.set(eerste)
                     onSuccess()
                 } else {
-                    fout = "De pincodes zijn niet gelijk. Probeer opnieuw."
+                    fout = context.getString(R.string.pin_mismatch)
                     eerste = ""
                     tweede = ""
                 }
@@ -84,7 +87,7 @@ fun PinDialog(
                 if (PinService.verify(cijfers)) {
                     onSuccess()
                 } else {
-                    fout = "Onjuiste pincode."
+                    fout = context.getString(R.string.pin_wrong)
                     eerste = ""
                 }
             }
@@ -96,8 +99,8 @@ fun PinDialog(
         title = {
             Text(
                 when (purpose) {
-                    is PinPurpose.Create -> "Pincode instellen"
-                    is PinPurpose.Verify -> "Pincode invoeren"
+                    is PinPurpose.Create -> stringResource(R.string.pin_set)
+                    is PinPurpose.Verify -> stringResource(R.string.pin_enter)
                 }
             )
         },
@@ -109,9 +112,8 @@ fun PinDialog(
                 Text(
                     text = when (purpose) {
                         is PinPurpose.Create ->
-                            if (bevestigen) "Voer dezelfde pincode nog een keer in."
-                            else "Kies een pincode van vier cijfers. Je hebt hem nodig " +
-                                "om de strikte modus uit te zetten."
+                            if (bevestigen) stringResource(R.string.pin_repeat)
+                            else stringResource(R.string.pin_choose)
                         is PinPurpose.Verify -> purpose.reason
                     },
                     fontSize = 14.sp,
@@ -169,7 +171,7 @@ fun PinDialog(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Annuleer") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
 }

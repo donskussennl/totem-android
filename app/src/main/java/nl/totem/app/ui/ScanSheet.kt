@@ -1,5 +1,7 @@
 package nl.totem.app.ui
 
+import nl.totem.app.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -61,7 +63,7 @@ fun ScanSheet(store: AppStore) {
             PulserendeRingen()
 
             Text(
-                text = "Klaar om te lezen",
+                text = stringResource(R.string.scan_ready),
                 fontSize = 21.sp,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 24.dp)
@@ -76,7 +78,7 @@ fun ScanSheet(store: AppStore) {
             )
 
             Text(
-                text = "Houd de bovenkant van je telefoon tegen de Totem.",
+                text = stringResource(R.string.scan_hold),
                 fontSize = 13.sp,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -87,7 +89,7 @@ fun ScanSheet(store: AppStore) {
                 onClick = { store.cancelScan() },
                 modifier = Modifier.padding(top = 20.dp)
             ) {
-                Text("Annuleer")
+                Text(stringResource(R.string.cancel))
             }
         }
     }
