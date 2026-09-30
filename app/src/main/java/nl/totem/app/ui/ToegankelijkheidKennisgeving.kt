@@ -1,5 +1,7 @@
 package nl.totem.app.ui
 
+import nl.totem.app.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -52,7 +54,7 @@ fun ToegankelijkheidKennisgeving(
         ),
         title = {
             Text(
-                "Totem wil de Toegankelijkheidsservice gebruiken",
+                stringResource(R.string.a11y_disc_title),
                 fontSize = 19.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -64,38 +66,25 @@ fun ToegankelijkheidKennisgeving(
                     .verticalScroll(rememberScrollState())
             ) {
                 Alinea(
-                    "Totem gebruikt de Toegankelijkheidsservice (AccessibilityService) " +
-                        "van Android. Hieronder staat wat dat betekent."
+                    stringResource(R.string.a11y_disc_intro)
                 )
                 Alinea(
-                    "Wat Totem uitleest: zodra je een andere app naar de voorgrond " +
-                        "haalt, krijgt Totem daar een seintje van en leest daaruit " +
-                        "alleen de naam van die app."
+                    stringResource(R.string.a11y_disc_reads)
                 )
                 Alinea(
-                    "Waarvoor: om te zien of die app hoort bij de focusmodus die je " +
-                        "hebt aangezet, en om er in dat geval het blokkadescherm " +
-                        "overheen te tonen. Zonder deze toestemming kan Totem niets " +
-                        "blokkeren."
+                    stringResource(R.string.a11y_disc_why)
                 )
                 Alinea(
-                    "Wat Totem niet doet: de inhoud van je scherm wordt niet gelezen, " +
-                        "er worden geen toetsaanslagen opgeslagen en er worden geen " +
-                        "schermafbeeldingen gemaakt."
+                    stringResource(R.string.a11y_disc_not)
                 )
                 Alinea(
-                    "Gegevens: de naam van de geopende app blijft op dit toestel. Die " +
-                        "wordt niet bewaard en niet verzameld, gedeeld of verkocht -- " +
-                        "niet aan ons en niet aan derden."
+                    stringResource(R.string.a11y_disc_data)
                 )
                 Alinea(
-                    "Je kunt de service later altijd uitzetten via Instellingen → " +
-                        "Toegankelijkheid op je toestel, of via Instellingen in Totem."
+                    stringResource(R.string.a11y_disc_off)
                 )
                 Alinea(
-                    "Tik je op 'Ik ga akkoord', dan brengt Totem je naar de " +
-                        "Android-instelling waar je de service zelf aanzet. Tik je op " +
-                        "'Niet akkoord', dan gebeurt er niets en blijft de service uit."
+                    stringResource(R.string.a11y_disc_consent)
                 )
             }
         },
@@ -103,10 +92,10 @@ fun ToegankelijkheidKennisgeving(
             TextButton(onClick = {
                 SharedStore.accessibilityConsent = true
                 onAkkoord()
-            }) { Text("Ik ga akkoord") }
+            }) { Text(stringResource(R.string.a11y_disc_agree)) }
         },
         dismissButton = {
-            TextButton(onClick = onNietAkkoord) { Text("Niet akkoord") }
+            TextButton(onClick = onNietAkkoord) { Text(stringResource(R.string.a11y_disc_decline)) }
         }
     )
 }

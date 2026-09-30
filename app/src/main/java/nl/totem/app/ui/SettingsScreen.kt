@@ -1,5 +1,7 @@
 package nl.totem.app.ui
 
+import nl.totem.app.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -81,10 +83,10 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Instellingen") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Terug")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -97,11 +99,11 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
         ) {
-            Kop("Toestemmingen")
+            Kop(stringResource(R.string.set_permissions))
 
             ToestemmingRij(
-                titel = "Toegankelijkheid",
-                uitleg = "Nodig om te zien welke app je opent. Zonder dit kan Totem niets blokkeren.",
+                titel = stringResource(R.string.onb_a11y_title),
+                uitleg = stringResource(R.string.set_a11y_help),
                 aan = toegankelijkheid,
                 onClick = {
                     // Staat de dienst uit, dan wordt er opnieuw toestemming
@@ -114,44 +116,44 @@ fun SettingsScreen(
                 }
             )
             ToestemmingRij(
-                titel = "Over andere apps tekenen",
-                uitleg = "Nodig om het blokkadescherm te tonen bovenop de app die je opende.",
+                titel = stringResource(R.string.onb_overlay_title),
+                uitleg = stringResource(R.string.set_overlay_help),
                 aan = overlay,
                 onClick = { ShieldService.openOverlaySettings(context) }
             )
             ToestemmingRij(
-                titel = "Wekkers en herinneringen",
-                uitleg = "Nodig om een schema op de minuut te laten beginnen. Zonder dit kan een blokkade uren te laat aanslaan.",
+                titel = stringResource(R.string.onb_alarms_title),
+                uitleg = stringResource(R.string.set_alarms_help),
                 aan = exacteWekkers,
                 onClick = { ShieldService.openExactAlarmSettings(context) }
             )
             ToestemmingRij(
-                titel = "Batterij zonder beperkingen",
-                uitleg = "Voorkomt dat je toestel Totem stilzet en een schema mist.",
+                titel = stringResource(R.string.onb_battery_title),
+                uitleg = stringResource(R.string.set_battery_help),
                 aan = null,
                 onClick = { ShieldService.openBatterySettings(context) }
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 20.dp))
 
-            Kop("Jouw Totem")
+            Kop(stringResource(R.string.set_your_totem))
             totem?.let {
-                InfoRij("Naam", it.name)
-                InfoRij("Tag", it.tagUID)
-                InfoRij("Gekoppeld", datum(it.pairedAt))
+                InfoRij(stringResource(R.string.set_name), it.name)
+                InfoRij(stringResource(R.string.set_tag), it.tagUID)
+                InfoRij(stringResource(R.string.set_paired), datum(LocalContext.current, it.pairedAt))
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 20.dp))
 
-            Kop("Meldingen")
+            Kop(stringResource(R.string.onb_notif_title))
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Bericht bij een schema")
+                    Text(stringResource(R.string.set_notify_schedule))
                     Text(
-                        "Je hoort het als een geplande blokkade start of stopt.",
+                        stringResource(R.string.set_notify_schedule_help),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -167,26 +169,27 @@ fun SettingsScreen(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 20.dp))
 
-            Kop("Strikte modus")
+            Kop(stringResource(R.string.set_strict))
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Pincode vereist")
+                    Text(stringResource(R.string.set_pin_required))
                     Text(
-                        "Dan vraagt ook de noodontgrendeling om je pincode, en zet je de strikte modus niet zonder uit.",
+                        stringResource(R.string.set_strict_help),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+                val pinUitTekst = stringResource(R.string.pin_strict_off)
                 Switch(
                     checked = strict,
                     onCheckedChange = { aan ->
                         pincodeScherm = if (aan) {
                             if (PinService.isSet) null else PinPurpose.Create
                         } else {
-                            PinPurpose.Verify("Voer je pincode in om de strikte modus uit te zetten.")
+                            PinPurpose.Verify(pinUitTekst)
                         }
                         if (aan && PinService.isSet) store.setStrictMode(true)
                     }
@@ -195,15 +198,13 @@ fun SettingsScreen(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 20.dp))
 
-            Kop("Noodgeval")
+            Kop(stringResource(R.string.set_emergency))
             InfoRij(
-                "Noodontgrendelingen over",
-                "${AppStore.EMERGENCY_LIMIT - emergencyUsed} van ${AppStore.EMERGENCY_LIMIT}"
+                stringResource(R.string.set_emergency_left),
+                stringResource(R.string.set_x_of_y, AppStore.EMERGENCY_LIMIT - emergencyUsed, AppStore.EMERGENCY_LIMIT)
             )
             Text(
-                "Ben je je Totem kwijt terwijl een blokkade loopt? Tik dan tijdens de " +
-                    "blokkade drie keer op de Totem-afbeelding om te ontgrendelen. Op de " +
-                    "eerste van de maand krijg je er weer ${AppStore.EMERGENCY_LIMIT}.",
+                stringResource(R.string.set_emergency_help, AppStore.EMERGENCY_LIMIT),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 6.dp)
@@ -211,21 +212,26 @@ fun SettingsScreen(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 20.dp))
 
-            TextButton(onClick = onOpenStats) { Text("Statistieken bekijken") }
+            TextButton(onClick = onOpenStats) { Text(stringResource(R.string.set_view_stats)) }
 
             TextButton(onClick = { bevestigOntkoppel = true }) {
-                Text("Totem ontkoppelen", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.set_unpair), color = MaterialTheme.colorScheme.error)
             }
             Text(
-                "Je kunt daarna een andere Totem koppelen. Een lopende sessie wordt beëindigd.",
+                stringResource(R.string.set_unpair_help),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 20.dp))
 
-            Kop("Over")
-            InfoRij("Versie", "1.0")
+            Kop(stringResource(R.string.set_about))
+            InfoRij(
+                stringResource(R.string.set_version),
+                LocalContext.current.let { c ->
+                    runCatching { c.packageManager.getPackageInfo(c.packageName, 0).versionName }.getOrNull() ?: ""
+                }
+            )
             Text(
                 "Tap back to reality.",
                 fontSize = 12.sp,
@@ -248,16 +254,16 @@ fun SettingsScreen(
     if (bevestigOntkoppel) {
         AlertDialog(
             onDismissRequest = { bevestigOntkoppel = false },
-            title = { Text("Totem ontkoppelen?") },
+            title = { Text(stringResource(R.string.set_unpair_q)) },
             confirmButton = {
                 TextButton(onClick = {
                     bevestigOntkoppel = false
                     store.unpairTotem()
                     onBack()
-                }) { Text("Ontkoppelen", color = MaterialTheme.colorScheme.error) }
+                }) { Text(stringResource(R.string.set_unpair_confirm), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                TextButton(onClick = { bevestigOntkoppel = false }) { Text("Annuleer") }
+                TextButton(onClick = { bevestigOntkoppel = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -324,9 +330,9 @@ private fun ToestemmingRij(
         }
         Text(
             text = when (aan) {
-                true -> "Aan"
-                false -> "Uit"
-                null -> "Openen ›"
+                true -> stringResource(R.string.set_on)
+                false -> stringResource(R.string.set_off)
+                null -> stringResource(R.string.set_open)
             },
             color = when (aan) {
                 true -> MaterialTheme.colorScheme.primary
@@ -337,5 +343,6 @@ private fun ToestemmingRij(
     }
 }
 
-private fun datum(millis: Long): String =
-    SimpleDateFormat("d MMM yyyy, HH:mm", Locale("nl")).format(Date(millis))
+private fun datum(context: android.content.Context, millis: Long): String =
+    android.text.format.DateFormat.getMediumDateFormat(context).format(Date(millis)) + ", " +
+        android.text.format.DateFormat.getTimeFormat(context).format(Date(millis))

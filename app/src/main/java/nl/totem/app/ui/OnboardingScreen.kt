@@ -1,5 +1,7 @@
 package nl.totem.app.ui
 
+import nl.totem.app.R
+import androidx.compose.ui.res.stringResource
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -83,14 +85,13 @@ fun OnboardingScreen(
         Spacer(Modifier.height(48.dp))
 
         Text(
-            text = "Totem klaarzetten",
+            text = stringResource(R.string.onb_title),
             fontSize = 28.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "Android laat een app niet zelf om deze rechten vragen — je zet ze " +
-                "één keer met de hand aan. Daarna heb je er geen omkijken meer naar.",
+            text = stringResource(R.string.onb_intro),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 8.dp)
@@ -100,7 +101,7 @@ fun OnboardingScreen(
 
         Stap(
             nummer = 1,
-            titel = "Toegankelijkheid",
+            titel = stringResource(R.string.onb_a11y_title),
             aan = toegankelijkheid,
             verplicht = true,
             // Dit is de 'prominente kennisgeving' die Google Play verlangt bij
@@ -108,15 +109,9 @@ fun OnboardingScreen(
             // erin staan: dat we die dienst gebruiken, wat hij uitleest, en
             // waarvoor. De laatste zin gaat over verzamelen en delen -- daar
             // vraagt de beoordeling apart naar.
-            waarom = "Totem gebruikt de Toegankelijkheidsservice van Android om te zien " +
-                "welke app je op de voorgrond opent. Alleen zo kan Totem een " +
-                "geblokkeerde app herkennen en het blokkadescherm tonen. Dit gebeurt " +
-                "volledig op je eigen toestel: er wordt niets opgeslagen en niets " +
-                "verstuurd naar ons of naar derden.",
-            waar = "Op de meeste toestellen springt de lijst meteen naar Totem. Zo " +
-                "niet, zoek hem dan onder ‘Geïnstalleerde apps’ of ‘Gedownloade " +
-                "apps’. Tik erop en zet de schakelaar aan.",
-            knop = "Toegankelijkheid openen",
+            waarom = stringResource(R.string.onb_a11y_why),
+            waar = stringResource(R.string.onb_a11y_where),
+            knop = stringResource(R.string.onb_a11y_button),
             onClick = {
                 // De kennisgeving hoort bij het aanzetten van de dienst, niet bij
                 // de eerste keer. Zet de gebruiker hem later uit, dan is de
@@ -134,59 +129,51 @@ fun OnboardingScreen(
         // Deze valkuil kost anders een half uur zoeken.
         if (!toegankelijkheid) {
             Waarschuwing(
-                "Staat de schakelaar grijs, of verdwijnt hij meteen weer? Dan houdt " +
-                    "Android hem tegen omdat Totem niet uit de Play Store komt. Ga naar " +
-                    "Instellingen → Apps → Totem → de drie puntjes rechtsboven → " +
-                    "‘Beperkte instellingen toestaan’, en probeer het dan opnieuw."
+                stringResource(R.string.onb_a11y_restricted)
             )
         }
 
         Stap(
             nummer = 2,
-            titel = "Over andere apps tekenen",
+            titel = stringResource(R.string.onb_overlay_title),
             aan = overlay,
             verplicht = true,
-            waarom = "Hiermee mag Totem zijn blokkadescherm tonen bovenop de app die " +
-                "je net opende.",
-            waar = "Zet de schakelaar bij Totem aan.",
-            knop = "Instelling openen",
+            waarom = stringResource(R.string.onb_overlay_why),
+            waar = stringResource(R.string.onb_overlay_where),
+            knop = stringResource(R.string.onb_open_setting),
             onClick = { ShieldService.openOverlaySettings(context) }
         )
 
         Stap(
             nummer = 3,
-            titel = "Wekkers en herinneringen",
+            titel = stringResource(R.string.onb_alarms_title),
             aan = wekkers,
             verplicht = false,
-            waarom = "Nodig als je schema's gebruikt: hiermee begint een blokkade op de " +
-                "minuut in plaats van soms uren later.",
-            waar = "Zet ‘Alarmen en herinneringen toestaan’ aan.",
-            knop = "Instelling openen",
+            waarom = stringResource(R.string.onb_alarms_why),
+            waar = stringResource(R.string.onb_alarms_where),
+            knop = stringResource(R.string.onb_open_setting),
             onClick = { ShieldService.openExactAlarmSettings(context) }
         )
 
         Stap(
             nummer = 4,
-            titel = "Batterij zonder beperkingen",
+            titel = stringResource(R.string.onb_battery_title),
             aan = null,
             verplicht = false,
-            waarom = "Voorkomt dat je toestel Totem op stil zet en een schema mist. " +
-                "Vooral bij Xiaomi, Oppo en Samsung is dit het verschil.",
-            waar = "Zoek Totem op en kies ‘Niet optimaliseren’ of ‘Onbeperkt’.",
-            knop = "Instelling openen",
+            waarom = stringResource(R.string.onb_battery_why),
+            waar = stringResource(R.string.onb_battery_where),
+            knop = stringResource(R.string.onb_open_setting),
             onClick = { ShieldService.openBatterySettings(context) }
         )
 
         if (!meldingen) {
             Stap(
                 nummer = 5,
-                titel = "Meldingen",
+                titel = stringResource(R.string.onb_notif_title),
                 aan = false,
                 verplicht = false,
-                waarom = "Zodat je bericht krijgt als een schema begint, en de teller " +
-                    "tijdens een blokkade zichtbaar blijft.",
-                waar = "Deze vraagt de app zelf; open je de app opnieuw, dan komt het " +
-                    "venster vanzelf.",
+                waarom = stringResource(R.string.onb_notif_why),
+                waar = stringResource(R.string.onb_notif_where),
                 knop = null,
                 onClick = {}
             )
@@ -199,7 +186,7 @@ fun OnboardingScreen(
             enabled = klaar,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (klaar) "Aan de slag" else "Zet eerst stap 1 en 2 aan")
+            Text(stringResource(if (klaar) R.string.onb_start else R.string.onb_steps_first))
         }
 
         TextButton(
@@ -208,11 +195,11 @@ fun OnboardingScreen(
                 .fillMaxWidth()
                 .padding(top = 4.dp)
         ) {
-            Text("Later doen", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.onb_later), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
 
         Text(
-            text = "Je kunt dit later altijd terugvinden onder Instellingen.",
+            text = stringResource(R.string.onb_find_later),
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp, bottom = 40.dp)
@@ -284,7 +271,7 @@ private fun Stap(
                 )
                 if (!verplicht) {
                     Text(
-                        "  optioneel",
+                        stringResource(R.string.onb_optional),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
