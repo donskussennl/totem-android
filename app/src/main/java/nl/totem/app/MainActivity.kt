@@ -75,6 +75,11 @@ class MainActivity : ComponentActivity() {
         // scan aan, dan vangt Android elke andere tik zelf op en zie je zijn
         // melding "Lege tag" — precies wat je níét wilt.
         android.util.Log.i(NfcService.TAG, "MainActivity.onResume — lezer wordt aangezet")
+        // In de emulator (debug, geen NFC-chip) niet bij elke terugkeer de foutmelding.
+        if (isDebuggable() && !nfc.isAvailable) {
+            store.onAppear()
+            return
+        }
         nfc.start { result ->
             android.util.Log.i(NfcService.TAG, "MainActivity kreeg een tik binnen")
             store.onTagRead(result.map { lezing -> lezing.uid to lezing.payload })
