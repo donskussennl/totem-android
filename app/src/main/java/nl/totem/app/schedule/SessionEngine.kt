@@ -1,6 +1,8 @@
 package nl.totem.app.schedule
 
 import android.content.Context
+import nl.totem.app.R
+import nl.totem.app.model.Points
 import androidx.glance.appwidget.updateAll
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -104,14 +106,20 @@ object SessionEngine {
         android.util.Log.i("TotemShield", "sessie stopt (bySchedule=$bySchedule)")
         ShieldService.stopBlocking(context)
         SessionService.stop(context)
+        ActivityScheduler.cancelPauseEnd(context)
 
-        // In de geschiedenis zetten, zodat de statistieken kloppen.
+        // In de geschiedenis zetten, zodat de statistieken kloppen. Tijd dat
+        // de apps even ontdooid waren telt niet mee voor de punten.
+        val afgesloten = session.closePause()
         val duration = (System.currentTimeMillis() - session.startedAt) / 1000
         if (duration > 0) {
             SharedStore.history = SharedStore.history + SessionLog(
-                modeName = mode?.name ?: "Onbekend",
+                modeName = mode?.name ?: context.getString(R.string.unknown),
                 startedAt = session.startedAt,
-                duration = duration
+                duration = duration,
+                pausedSeconds = afgesloten.pausedTotal / 1000,
+                appCount = mode?.let { Points.apps(it) },
+                modeID = session.modeID
             )
         }
 
@@ -134,6 +142,64 @@ object SessionEngine {
         changed(context)
     }
 
+    // MARK: - Tikken tijdens een blokkade
+
+    /**
+     * Er is een Totem aangetikt terwijl er een blokkade loopt.
+     *
+     * Tijdens een schema ontdooit een tik de apps maar even (5, 10 of 15
+     * minuten); daarna bevriezen ze weer tot het schema voorbij is. Een
+     * blokkade die je zelf startte, of een schema dat pas eindigt als je tikt,
+     * stopt gewoon.
+     */
+    fun tapWhileRunning(context: Context) {
+        SharedStore.init(context)
+        val session = SharedStore.session ?: return
+        val mode = SharedStore.mode(session.modeID)
+        if (session.startedBySchedule && mode != null && mode.schedule.pausesOnTap) {
+            if (!session.isPaused()) pause(context)
+        } else {
+            stop(context, bySchedule = false)
+        }
+    }
+
+    /** Of een tik nu zou ontdooien in plaats van stoppen. */
+    fun tapPauses(): Boolean {
+        val session = SharedStore.session ?: return false
+        val mode = SharedStore.mode(session.modeID) ?: return false
+        return session.startedBySchedule && mode.schedule.pausesOnTap
+    }
+
+    /** Heft de blokkade even op, voor de ontdooitijd van het schema. */
+    fun pause(context: Context) {
+        SharedStore.init(context)
+        val session = SharedStore.session ?: return
+        val mode = SharedStore.mode(session.modeID) ?: return
+        val nu = System.currentTimeMillis()
+        val until = nu + mode.schedule.pauseMinutes * 60_000L
+        SharedStore.session = session.copy(pausedUntil = until, pauseStartedAt = nu)
+        ShieldService.stopBlocking(context)
+        ActivityScheduler.schedulePauseEnd(context, until)
+        changed(context)
+    }
+
+    /**
+     * Weer bevriezen: omdat de tijd om is, of omdat je dat zelf kiest.
+     *
+     * @param notify of er een melding bij hoort; bij zelf bevriezen niet.
+     */
+    fun resume(context: Context, notify: Boolean) {
+        SharedStore.init(context)
+        val session = SharedStore.session ?: return
+        if (session.pausedUntil == null) return
+        val mode = SharedStore.mode(session.modeID) ?: return
+        SharedStore.session = session.closePause()
+        ActivityScheduler.cancelPauseEnd(context)
+        ShieldService.startBlocking(context, mode, session.startedAt)
+        if (notify) NotificationService.notifyRefrozen(context, mode.name)
+        changed(context)
+    }
+
     // MARK: - Vangnet
 
     /**
@@ -147,6 +213,11 @@ object SessionEngine {
         val modes = SharedStore.modes
         val session = SharedStore.session
         val nu = System.currentTimeMillis()
+
+        // 0. Is een pauze voorbij? Dan weer bevriezen.
+        if (session?.pausedUntil != null && session.pausedUntil <= nu) {
+            resume(context, notify = true)
+        }
 
         // 1. Loopt er iets dat had moeten stoppen?
         if (session != null) {

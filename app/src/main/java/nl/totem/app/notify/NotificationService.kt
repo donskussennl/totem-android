@@ -38,10 +38,10 @@ object NotificationService {
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_SESSION,
-                "Lopende blokkade",
+                context.getString(R.string.channel_session),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "De teller die loopt zolang een blokkade actief is."
+                description = context.getString(R.string.channel_session_description)
                 setShowBadge(false)
             }
         )
@@ -49,10 +49,10 @@ object NotificationService {
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_SCHEDULE,
-                "Schema's",
+                context.getString(R.string.channel_schedule),
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "Bericht zodra een schema een blokkade start of stopt."
+                description = context.getString(R.string.channel_schedule_description)
             }
         )
     }
@@ -72,14 +72,28 @@ object NotificationService {
 
     fun notifyStarted(context: Context, modeName: String, until: String?) {
         if (!isEnabled) return
-        val body = until?.let { "Je telefoon is rustig tot $it." }
-            ?: "Tik je Totem aan als je weer verder wilt."
-        send(context, "$modeName is gestart", body)
+        val body = until?.let { context.getString(R.string.notify_started_until, it) }
+            ?: context.getString(R.string.notify_started_tap)
+        send(context, context.getString(R.string.notify_started_title, modeName), body)
     }
 
     fun notifyEnded(context: Context, modeName: String) {
         if (!isEnabled) return
-        send(context, "$modeName is afgelopen", "Je apps zijn weer vrij.")
+        send(
+            context,
+            context.getString(R.string.notify_ended_title, modeName),
+            context.getString(R.string.notify_ended_body)
+        )
+    }
+
+    /** De pauze is voorbij; de apps zijn weer bevroren. */
+    fun notifyRefrozen(context: Context, modeName: String) {
+        if (!isEnabled) return
+        send(
+            context,
+            context.getString(R.string.notify_refrozen_title, modeName),
+            context.getString(R.string.notify_refrozen_body)
+        )
     }
 
     /**
@@ -92,8 +106,8 @@ object NotificationService {
     fun notifyCannotBlock(context: Context, modeName: String) {
         send(
             context,
-            "$modeName kon niet starten",
-            "Totem mist een toestemming. Open de app en controleer de instellingen."
+            context.getString(R.string.notify_cannot_block_title, modeName),
+            context.getString(R.string.notify_cannot_block_body)
         )
     }
 

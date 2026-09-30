@@ -29,6 +29,12 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import nl.totem.app.model.Schedule
+import nl.totem.app.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SegmentedButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -199,6 +205,31 @@ fun ModeEditorSheet(
                         concept = concept.copy(schedule = concept.schedule.copy(weekdays = it))
                     }
                 )
+
+                // Alleen bij een schema dat zelf eindigt: dan ontdooit een tik
+                // de apps even in plaats van het schema te stoppen.
+                if (concept.schedule.pausesOnTap) {
+                    Kop(stringResource(R.string.editor_unfreeze_on_tap))
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        Schedule.PAUSE_OPTIONS.forEachIndexed { i, minuten ->
+                            SegmentedButton(
+                                selected = concept.schedule.pauseMinutes == minuten,
+                                onClick = {
+                                    concept = concept.copy(
+                                        schedule = concept.schedule.copy(pauseMinutes = minuten)
+                                    )
+                                },
+                                shape = SegmentedButtonDefaults.itemShape(i, Schedule.PAUSE_OPTIONS.size)
+                            ) { Text(stringResource(R.string.editor_unfreeze_minutes, minuten)) }
+                        }
+                    }
+                    Text(
+                        stringResource(R.string.editor_unfreeze_help),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 20.dp))

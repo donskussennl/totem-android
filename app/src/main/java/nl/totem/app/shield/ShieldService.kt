@@ -61,7 +61,8 @@ object ShieldService {
         val mode = session?.let { SharedStore.mode(it.modeID) }
         stand.set(
             // Sessie eerst: is die er niet, dan is `mode` per definitie ook null.
-            if (session == null || mode == null) Stand()
+            // Even ontdooid: dan hoort er juist niets geblokkeerd te zijn.
+            if (session == null || mode == null || session.isPaused()) Stand()
             else Stand(
                 packages = mode.blockedPackages - Onaantastbaar.voor(context),
                 modeName = mode.name,

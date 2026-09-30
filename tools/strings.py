@@ -50,4 +50,60 @@ S = {
         "Retour à la vraie vie",
         "Vuelve a la vida real",
         "Zurück ins echte Leben"),
+    # --- Algemeen, deel 2 ---------------------------------------------------
+    "unknown": ("Onbekend", "Unknown", "Inconnu", "Desconocido", "Unbekannt"),
+
+    # --- Meldingen ----------------------------------------------------------
+    "channel_session": ("Lopende blokkade", "Running block", "Blocage en cours", "Bloqueo en curso", "Laufende Sperre"),
+    "channel_session_description": (
+        "De teller die loopt zolang een blokkade actief is.",
+        "The timer that runs while a block is active.",
+        "Le compteur qui tourne tant qu’un blocage est actif.",
+        "El contador que corre mientras hay un bloqueo activo.",
+        "Der Zähler, der läuft, solange eine Sperre aktiv ist."),
+    "channel_schedule": ("Schema's", "Schedules", "Programmes", "Horarios", "Zeitpläne"),
+    "channel_schedule_description": (
+        "Bericht zodra een schema een blokkade start of stopt.",
+        "A message as soon as a schedule starts or stops a block.",
+        "Un message dès qu’un programme lance ou arrête un blocage.",
+        "Un aviso en cuanto un horario inicia o detiene un bloqueo.",
+        "Eine Nachricht, sobald ein Zeitplan eine Sperre startet oder beendet."),
+    "notify_started_title": ("%1$s is gestart", "%1$s has started", "%1$s a commencé", "%1$s ha empezado", "%1$s hat begonnen"),
+    "notify_started_until": ("Je telefoon is rustig tot %1$s.", "Your phone is quiet until %1$s.", "Ton téléphone reste calme jusqu’à %1$s.", "Tu teléfono estará tranquilo hasta %1$s.", "Dein Handy ist ruhig bis %1$s."),
+    "notify_started_tap": ("Tik je Totem aan als je weer verder wilt.", "Tap your Totem when you want to carry on.", "Tape ton Totem quand tu veux reprendre.", "Toca tu Totem cuando quieras seguir.", "Tippe auf dein Totem, wenn du weitermachen willst."),
+    "notify_ended_title": ("%1$s is afgelopen", "%1$s has ended", "%1$s est terminé", "%1$s ha terminado", "%1$s ist beendet"),
+    "notify_ended_body": ("Je apps zijn weer vrij.", "Your apps are free again.", "Tes apps sont de nouveau libres.", "Tus apps vuelven a estar libres.", "Deine Apps sind wieder frei."),
+    "notify_refrozen_title": ("%1$s is weer actief", "%1$s is active again", "%1$s est de nouveau actif", "%1$s vuelve a estar activo", "%1$s ist wieder aktiv"),
+    "notify_refrozen_body": ("Je pauze is voorbij; je apps zijn weer bevroren.", "Your break is over; your apps are frozen again.", "Ta pause est terminée ; tes apps sont de nouveau gelées.", "Tu pausa ha terminado; tus apps vuelven a estar congeladas.", "Deine Pause ist vorbei; deine Apps sind wieder eingefroren."),
+    "notify_cannot_block_title": ("%1$s kon niet starten", "%1$s couldn’t start", "%1$s n’a pas pu démarrer", "%1$s no pudo iniciarse", "%1$s konnte nicht starten"),
+    "notify_cannot_block_body": (
+        "Totem mist een toestemming. Open de app en controleer de instellingen.",
+        "Totem is missing a permission. Open the app and check the settings.",
+        "Il manque une autorisation à Totem. Ouvre l’app et vérifie les réglages.",
+        "A Totem le falta un permiso. Abre la app y revisa los ajustes.",
+        "Totem fehlt eine Berechtigung. Öffne die App und prüfe die Einstellungen."),
+
+    # --- Ontdooien -----------------------------------------------------------
+    "detail_paused_label": ("Ontdooid, bevriest weer over", "Unfrozen, freezes again in", "Dégelé, se regèle dans", "Descongelado, se congela de nuevo en", "Aufgetaut, friert wieder ein in"),
+    "detail_freeze_now": ("Nu weer bevriezen", "Freeze again now", "Regeler maintenant", "Volver a congelar ya", "Jetzt wieder einfrieren"),
+    "detail_unfreeze_minutes": ("%1$d min ontdooien", "Unfreeze for %1$d min", "Dégeler %1$d min", "Descongelar %1$d min", "%1$d Min. auftauen"),
+    "detail_deactivate": ("Totem deactiveren", "Deactivate Totem", "Désactiver Totem", "Desactivar Totem", "Totem deaktivieren"),
+    "detail_activate": ("Totem activeren", "Activate Totem", "Activer Totem", "Activar Totem", "Totem aktivieren"),
+    "detail_block_time": ("Blokkade tijd", "Block time", "Temps de blocage", "Tiempo de bloqueo", "Sperrzeit"),
+    "scan_unfreeze": ("Tik je Totem aan om %1$d minuten te ontdooien", "Tap your Totem to unfreeze for %1$d minutes", "Tape ton Totem pour dégeler %1$d minutes", "Toca tu Totem para descongelar %1$d minutos", "Tippe auf dein Totem, um %1$d Minuten aufzutauen"),
+    "editor_unfreeze_on_tap": ("Ontdooien bij tikken", "Unfreeze on tap", "Dégeler en tapant", "Descongelar al tocar", "Beim Tippen auftauen"),
+    "editor_unfreeze_minutes": ("%1$d min", "%1$d min", "%1$d min", "%1$d min", "%1$d Min."),
+    "editor_unfreeze_help": (
+        "Tik je tijdens het schema je Totem aan, dan ontdooien je apps even en bevriezen ze daarna weer tot het schema voorbij is.",
+        "Tap your Totem during the schedule and your apps unfreeze for a moment, then freeze again until the schedule ends.",
+        "Si tu tapes ton Totem pendant le programme, tes apps se dégèlent un moment puis se regèlent jusqu’à la fin du programme.",
+        "Si tocas tu Totem durante el horario, tus apps se descongelan un momento y luego se vuelven a congelar hasta que termine el horario.",
+        "Tippst du während des Zeitplans auf dein Totem, tauen deine Apps kurz auf und frieren danach wieder ein, bis der Zeitplan vorbei ist."),
+    # --- Modusnamen ---------------------------------------------------------
+    "mode_work": ("Werk", "Work", "Travail", "Trabajo", "Arbeit"),
+    "mode_sport": ("Sport", "Sport", "Sport", "Deporte", "Sport"),
+    "mode_relax": ("Relaxen", "Relax", "Détente", "Relax", "Entspannen"),
+    "mode_study": ("Studeren", "Study", "Études", "Estudiar", "Lernen"),
+    "mode_sleep": ("Slaap", "Sleep", "Sommeil", "Dormir", "Schlafen"),
+    "mode_other": ("Anders…", "Other…", "Autre…", "Otro…", "Anderes …"),
 }

@@ -1,6 +1,7 @@
 package nl.totem.app.store
 
 import android.app.Application
+import nl.totem.app.R
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +38,7 @@ import java.util.Calendar
 class AppStore(app: Application) : AndroidViewModel(app) {
 
     /** Waarom er gescand wordt. Bepaalt wat er met de UID gebeurt. */
-    enum class ScanPurpose { PAIR, START, STOP }
+    enum class ScanPurpose { PAIR, START, STOP, PAUSE }
 
     data class ScanRequest(
         val purpose: ScanPurpose,
@@ -194,9 +195,27 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         )
     }
 
-    /** Stopt de lopende sessie. Kan alléén door de Totem opnieuw te tikken. */
+    /**
+     * Stopt de lopende sessie. Kan alléén door de Totem opnieuw te tikken.
+     *
+     * Tijdens een schema stopt een tik niet, maar ontdooit hij de apps even;
+     * zie [SessionEngine.tapWhileRunning].
+     */
     fun endSession() {
-        if (_session.value == null) return
+        val session = _session.value ?: return
+        if (SessionEngine.tapPauses()) {
+            if (session.isPaused()) return
+            val mode = mode(session.modeID) ?: return
+            if (_totem.value?.isDemo == true) {
+                SessionEngine.pause(context)
+                return
+            }
+            _scanRequest.value = ScanRequest(
+                purpose = ScanPurpose.PAUSE,
+                prompt = context.getString(R.string.scan_unfreeze, mode.schedule.pauseMinutes)
+            )
+            return
+        }
         if (_totem.value?.isDemo == true) {
             SessionEngine.stop(context, bySchedule = false)
             return
@@ -296,6 +315,11 @@ class AppStore(app: Application) : AndroidViewModel(app) {
                 SessionEngine.stop(context, bySchedule = false)
             }
 
+            ScanPurpose.PAUSE -> {
+                if (!accepteerTotem(uid, payload)) return
+                SessionEngine.pause(context)
+            }
+
             // Een tik terwijl er niets gevraagd was.
             null -> losseTik(uid, payload)
         }
@@ -310,7 +334,8 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         }
         if (!accepteerTotem(uid, payload)) return
         if (_session.value != null) {
-            SessionEngine.stop(context, bySchedule = false)
+            // Tijdens een schema ontdooien, anders stoppen.
+            SessionEngine.tapWhileRunning(context)
         } else {
             _awaitingModeChoice.value = true
         }
@@ -379,6 +404,16 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         if (TotemAuth.isGenuine(uidBytes, payload)) return true
         _errorMessage.value = TotemError.NotATotem.text
         return false
+    }
+
+    // MARK: - Ontdooien
+
+    /** Of een tik nu zou ontdooien in plaats van stoppen. */
+    fun tapPauses(): Boolean = SessionEngine.tapPauses()
+
+    /** Weer bevriezen voordat de pauze om is. Daar hoeft geen Totem voor. */
+    fun freezeNow() {
+        SessionEngine.resume(context, notify = false)
     }
 
     // MARK: - Noodontgrendeling

@@ -108,7 +108,9 @@ class BlockActivity : ComponentActivity() {
             val lezing = result.getOrNull() ?: return@start
             if (!hoortBijMijnTotem(lezing.uid)) return@start
 
-            SessionEngine.stop(this, bySchedule = false)
+            // Tijdens een schema ontdooit een tik de apps even; anders stopt
+            // de blokkade. Zie SessionEngine.tapWhileRunning.
+            SessionEngine.tapWhileRunning(this)
 
             // Terug naar Totem, niet naar het startscherm. Dit scherm draait in
             // een eigen taak; sluiten we alleen onszelf, dan valt de gebruiker

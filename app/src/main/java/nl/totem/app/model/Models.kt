@@ -62,8 +62,24 @@ data class Schedule(
     val startHour: Int = 9,
     val startMinute: Int = 0,
     val end: ScheduleEnd = ScheduleEnd.Time(17, 0),
-    val weekdays: Set<Int> = setOf(2, 3, 4, 5, 6)
+    val weekdays: Set<Int> = setOf(2, 3, 4, 5, 6),
+    /**
+     * Hoe lang de apps ontdooien als je tijdens het schema je Totem aantikt.
+     * Daarna bevriezen ze weer tot het schema voorbij is.
+     */
+    val pauseMinutes: Int = 5
 ) {
+    /**
+     * Of een tik tijdens dit schema de apps even ontdooit in plaats van het
+     * schema te beëindigen. Bij "als je tikt" is de tik juist het einde.
+     */
+    val pausesOnTap: Boolean
+        get() = isOn && end !is ScheduleEnd.Tap
+
+    companion object {
+        val PAUSE_OPTIONS = listOf(5, 10, 15)
+    }
+
     /** "09:00 – 17:00" of "22:00 – als je tikt". */
     val timeText: String
         get() {
@@ -118,8 +134,28 @@ data class ActiveSession(
     val modeID: String,
     val startedAt: Long,
     /** Of een schema deze sessie startte, of jij met je Totem. */
-    val startedBySchedule: Boolean = false
-)
+    val startedBySchedule: Boolean = false,
+    /** Tot wanneer de apps even ontdooid zijn (epoch-ms). Null = bevroren. */
+    val pausedUntil: Long? = null,
+    /** Wanneer de lopende pauze begon. */
+    val pauseStartedAt: Long? = null,
+    /** Hoe lang er in totaal ontdooid is geweest, in ms. Telt niet mee voor punten. */
+    val pausedTotal: Long = 0L
+) {
+    fun isPaused(nu: Long = System.currentTimeMillis()): Boolean =
+        pausedUntil != null && pausedUntil > nu
+
+    /** Sluit een lopende pauze af en telt hem op bij het totaal. */
+    fun closePause(nu: Long = System.currentTimeMillis()): ActiveSession {
+        val begin = pauseStartedAt ?: return copy(pausedUntil = null)
+        val eind = minOf(nu, pausedUntil ?: nu)
+        return copy(
+            pausedUntil = null,
+            pauseStartedAt = null,
+            pausedTotal = pausedTotal + maxOf(0L, eind - begin)
+        )
+    }
+}
 
 /** Een afgeronde sessie, voor de statistieken. */
 @Serializable
@@ -128,8 +164,16 @@ data class SessionLog(
     val modeName: String,
     val startedAt: Long,
     /** Duur in seconden. */
-    val duration: Long
-)
+    val duration: Long,
+    /** Hoe lang er tussendoor ontdooid is geweest, in seconden. */
+    val pausedSeconds: Long = 0L,
+    /** Hoeveel apps er op slot zaten; bepaalt mee de punten. */
+    val appCount: Int? = null,
+    val modeID: String? = null
+) {
+    /** De tijd dat er echt iets geblokkeerd was, in seconden. */
+    val blockedSeconds: Long get() = maxOf(0L, duration - pausedSeconds)
+}
 
 /**
  * Fouten die de gebruiker te zien kan krijgen.
@@ -154,4 +198,33 @@ sealed class TotemError(val text: String?) : Exception(text) {
         TotemError("Geef Totem toegang tot toegankelijkheid om apps te kunnen blokkeren.")
 
     data object Cancelled : TotemError(null)
+}
+
+/**
+ * Punten voor je weekscore: 1 punt per geblokkeerde app per 10 minuten.
+ * Een uur met 6 apps op slot levert dus 36 punten op. Zelfde formule als op iOS.
+ */
+object Points {
+    fun apps(mode: FocusMode): Int = maxOf(1, mode.blockedCount)
+
+    fun points(blockedSeconds: Long, apps: Int): Int =
+        Math.round(blockedSeconds / 60.0 * apps / 10.0).toInt()
+
+    /** Maandag als eerste dag van de week, zoals in Nederland. */
+    fun calendar(): java.util.Calendar = java.util.Calendar.getInstance().apply {
+        firstDayOfWeek = java.util.Calendar.MONDAY
+        minimalDaysInFirstWeek = 4
+    }
+
+    /** Het begin (maandag 00:00) van de week waarin [at] valt. */
+    fun weekStart(at: Long): Long = calendar().apply {
+        timeInMillis = at
+        set(java.util.Calendar.HOUR_OF_DAY, 0)
+        set(java.util.Calendar.MINUTE, 0)
+        set(java.util.Calendar.SECOND, 0)
+        set(java.util.Calendar.MILLISECOND, 0)
+        while (get(java.util.Calendar.DAY_OF_WEEK) != java.util.Calendar.MONDAY) {
+            add(java.util.Calendar.DAY_OF_YEAR, -1)
+        }
+    }.timeInMillis
 }

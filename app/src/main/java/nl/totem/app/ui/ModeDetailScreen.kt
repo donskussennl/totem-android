@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -107,6 +108,10 @@ fun ModeDetailScreen(
     val verstreken = if (isActive && huidigeSessie != null) {
         nu - huidigeSessie.startedAt
     } else 0L
+    // Even ontdooid tijdens een schema: hoeveel tijd is er nog over?
+    val pauzeOver = huidigeSessie?.pausedUntil
+        ?.takeIf { isActive && it > nu }
+        ?.let { it - nu }
 
     Box(
         modifier = Modifier
@@ -133,9 +138,23 @@ fun ModeDetailScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // De teller: groot tijdens een blokkade, klein daarbuiten.
-            if (isActive) {
+            if (isActive && pauzeOver != null) {
+                val seconden = pauzeOver / 1000
                 Text(
-                    text = "Blokkade tijd",
+                    text = stringResource(R.string.detail_paused_label),
+                    fontSize = 14.sp,
+                    color = Color.White
+                )
+                Text(
+                    text = "%d:%02d".format(seconden / 60, seconden % 60),
+                    fontSize = 42.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            } else if (isActive) {
+                Text(
+                    text = stringResource(R.string.detail_block_time),
                     fontSize = 14.sp,
                     color = Color.White
                 )
@@ -232,8 +251,15 @@ fun ModeDetailScreen(
             // De knop. Kort tikken opent de scanner; lang vasthouden is er
             // bewust niet, want stoppen hoort via de Totem te gaan.
             val ingeschakeld = isActive || mode.isConfigured
+            val knopTekst = when {
+                isActive && pauzeOver != null -> stringResource(R.string.detail_freeze_now)
+                isActive && store.tapPauses() ->
+                    stringResource(R.string.detail_unfreeze_minutes, mode.schedule.pauseMinutes)
+                isActive -> stringResource(R.string.detail_deactivate)
+                else -> stringResource(R.string.detail_activate)
+            }
             Text(
-                text = if (isActive) "Totem deactiveren" else "Totem activeren",
+                text = knopTekst,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Medium,
                 color = tekstPrimair.copy(alpha = if (ingeschakeld) 1f else 0.4f),
@@ -244,7 +270,11 @@ fun ModeDetailScreen(
                     .clip(CircleShape)
                     .border(1.5.dp, tekstSecundair.copy(alpha = 0.45f), CircleShape)
                     .clickable(enabled = ingeschakeld) {
-                        if (isActive) store.endSession() else store.startSession(mode)
+                        when {
+                            isActive && pauzeOver != null -> store.freezeNow()
+                            isActive -> store.endSession()
+                            else -> store.startSession(mode)
+                        }
                     }
                     .padding(vertical = 17.dp)
             )

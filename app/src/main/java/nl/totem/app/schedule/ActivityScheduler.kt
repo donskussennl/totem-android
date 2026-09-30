@@ -30,6 +30,8 @@ import java.util.Calendar
 object ActivityScheduler {
 
     private const val REQUEST_BASE = 7000
+    /** Eigen nummer voor de wekker aan het einde van een pauze. */
+    private const val REQUEST_PAUSE = 6999
 
     /** Deelt de huidige stand en zet de wekkers opnieuw. */
     fun refresh(context: Context) {
@@ -88,6 +90,23 @@ object ActivityScheduler {
                 alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pending)
             }
         }.onFailure { Log.w("Totem", "Wekker zetten mislukt", it) }
+    }
+
+    // MARK: - Ontdooien
+
+    /**
+     * Laat ons wakker maken als de pauze voorbij is, zodat de apps weer
+     * bevriezen, ook als de app dicht is. [SessionEngine.syncWithSchedule]
+     * ziet dan dat de pauze om is.
+     */
+    fun schedulePauseEnd(context: Context, at: Long) {
+        val alarms = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        set(context, alarms, at, REQUEST_PAUSE)
+    }
+
+    fun cancelPauseEnd(context: Context) {
+        val alarms = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarms.cancel(pendingIntent(context, REQUEST_PAUSE))
     }
 
     private fun cancelAll(context: Context, modes: List<FocusMode>) {
