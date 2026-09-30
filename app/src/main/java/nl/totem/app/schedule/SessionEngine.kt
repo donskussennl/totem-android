@@ -93,6 +93,8 @@ object SessionEngine {
             startedBySchedule = bySchedule
         )
         SharedStore.session = session
+        // Gebruikt: de "we missen je"-herinneringen beginnen opnieuw te tellen.
+        nl.totem.app.notify.Reminders.onUse(context)
 
         SessionService.start(context, mode.name, session.startedAt)
 

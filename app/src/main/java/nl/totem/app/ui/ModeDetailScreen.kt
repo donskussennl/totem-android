@@ -56,6 +56,7 @@ fun ModeDetailScreen(
     modeID: String,
     onBack: () -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val modes by store.modes.collectAsStateWithLifecycle()
     val session by store.session.collectAsStateWithLifecycle()
     val noodOver by store.emergencyRemaining.collectAsStateWithLifecycle()
@@ -159,7 +160,7 @@ fun ModeDetailScreen(
                     color = Color.White
                 )
                 Text(
-                    text = formatElapsed(verstreken, withSeconds = true),
+                    text = formatElapsed(context, verstreken, withSeconds = true),
                     fontSize = 42.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
@@ -167,7 +168,7 @@ fun ModeDetailScreen(
                 )
             } else {
                 Text(
-                    text = formatElapsed(0, withSeconds = false),
+                    text = formatElapsed(context, 0, withSeconds = false),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = tekstPrimair,

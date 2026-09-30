@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
+import android.app.PendingIntent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -27,7 +29,15 @@ object NotificationService {
     /** Losse berichten: een schema is gestart of afgelopen. */
     const val CHANNEL_SCHEDULE = "totem.schedule"
 
+    /** De weekscore en de "we missen je"-herinneringen. */
+    const val CHANNEL_REMINDERS = "totem.reminders"
+
+    /** Tik op een herinnering: de app opent en start meteen "Totem activeren". */
+    const val EXTRA_ACTIVATE = "totem.activate"
+
     const val SESSION_NOTIFICATION_ID = 1001
+    private const val WEEKLY_NOTIFICATION_ID = 1003
+    private const val COMEBACK_NOTIFICATION_ID = 1004
     private const val SCHEDULE_NOTIFICATION_ID = 1002
 
     /** Wordt één keer aangeroepen vanuit [nl.totem.app.TotemApplication]. */
@@ -55,7 +65,52 @@ object NotificationService {
                 description = context.getString(R.string.channel_schedule_description)
             }
         )
+
+        manager.createNotificationChannel(
+            NotificationChannel(
+                CHANNEL_REMINDERS,
+                context.getString(R.string.channel_reminders),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = context.getString(R.string.channel_reminders_description)
+            }
+        )
     }
+
+    /**
+     * De weekscore of een "we missen je"-herinnering.
+     *
+     * @param activate of een tik meteen "Totem activeren" moet openen.
+     */
+    fun notifyReminder(context: Context, title: String, body: String, activate: Boolean) {
+        if (!isEnabled || !hasPermission(context)) return
+        val notification = NotificationCompat.Builder(context, CHANNEL_REMINDERS)
+            .setSmallIcon(R.drawable.ic_totem_notification)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setContentIntent(openApp(context, activate))
+            .setAutoCancel(true)
+            .build()
+        runCatching {
+            // Eigen nummers, zodat de weekscore en een herinnering elkaar
+            // niet overschrijven.
+            NotificationManagerCompat.from(context).notify(
+                if (activate) COMEBACK_NOTIFICATION_ID else WEEKLY_NOTIFICATION_ID,
+                notification
+            )
+        }
+    }
+
+    private fun openApp(context: Context, activate: Boolean): PendingIntent =
+        PendingIntent.getActivity(
+            context,
+            if (activate) 2 else 1,
+            Intent(context, nl.totem.app.MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .putExtra(EXTRA_ACTIVATE, activate),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
     /** Of Totem bericht stuurt als een schema een blokkade start of stopt. */
     var isEnabled: Boolean
@@ -118,6 +173,7 @@ object NotificationService {
             .setSmallIcon(R.drawable.ic_totem_notification)
             .setContentTitle(title)
             .setContentText(body)
+            .setContentIntent(openApp(context, activate = false))
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()

@@ -86,20 +86,22 @@ fun TotemRings(
  *
  * @param millis verstreken tijd in milliseconden
  */
-fun formatElapsed(millis: Long, withSeconds: Boolean = false): String {
+fun formatElapsed(context: android.content.Context, millis: Long, withSeconds: Boolean = false): String {
     val total = (millis / 1000).coerceAtLeast(0)
-    val h = total / 3600
-    val m = (total % 3600) / 60
-    val s = total % 60
-    return if (withSeconds) "${h}u ${m}m ${s}s" else "${h}u ${m}m"
+    val h = (total / 3600).toInt()
+    val m = ((total % 3600) / 60).toInt()
+    val s = (total % 60).toInt()
+    return if (withSeconds) context.getString(nl.totem.app.R.string.dur_hms, h, m, s)
+    else context.getString(nl.totem.app.R.string.dur_hm, h, m)
 }
 
 /** Korte duurweergave voor de statistieken: "2u 15m" of "45m". */
-fun formatDuration(seconds: Long): String {
-    val minutes = seconds / 60
+fun formatDuration(context: android.content.Context, seconds: Long): String {
+    val minutes = (seconds / 60).toInt()
     val h = minutes / 60
     val m = minutes % 60
-    return if (h > 0) "${h}u ${m}m" else "${m}m"
+    return if (h > 0) context.getString(nl.totem.app.R.string.dur_hm, h, m)
+    else context.getString(nl.totem.app.R.string.dur_m, m)
 }
 
 

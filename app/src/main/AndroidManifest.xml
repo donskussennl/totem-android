@@ -175,6 +175,11 @@
             </intent-filter>
         </receiver>
 
+        <!-- De weekscore op zondagavond en de "we missen je"-herinneringen. -->
+        <receiver
+            android:name=".notify.ReminderReceiver"
+            android:exported="false" />
+
         <!-- Aankomst bij en vertrek van een gekozen plek. -->
         <receiver
             android:name=".location.GeofenceReceiver"

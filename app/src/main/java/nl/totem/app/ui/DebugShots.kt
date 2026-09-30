@@ -80,6 +80,37 @@ fun DebugShots(kind: String, store: AppStore) {
 
         "wizard" -> SetupWizardScreen(store = store, isFirstRun = true, onClose = {})
 
+        // De meldingen meteen laten afgaan, zonder op zondag te wachten.
+        "reminders" -> {
+            LaunchedEffect(kind) {
+                SharedStore.init(context)
+                nl.totem.app.notify.Reminders.handle(context, nl.totem.app.notify.Reminders.ACTION_WEEKLY)
+                SharedStore.lastUse = System.currentTimeMillis() - 8 * 86_400_000L
+                SharedStore.comebackCount = 0
+                nl.totem.app.notify.Reminders.handle(context, nl.totem.app.notify.Reminders.ACTION_COMEBACK)
+            }
+            StatsScreen(store = store, onBack = {})
+        }
+
+        // Acht weken aan voorbeeldsessies, net als `-stats` op iOS.
+        "stats" -> {
+            LaunchedEffect(kind) {
+                SharedStore.init(context)
+                val namen = voorbeeldModi(context).map { it.name }
+                val nu = System.currentTimeMillis()
+                SharedStore.history = (55 downTo 0).filter { it % 3 != 1 }.map { dag ->
+                    val start = nu - dag * 86_400_000L - ((dag * 37) % 5) * 3_600_000L
+                    val minuten = 30 + (dag * 53) % 150
+                    nl.totem.app.model.SessionLog(
+                        modeName = namen[dag % 3], startedAt = start,
+                        duration = minuten * 60L, appCount = 3 + dag % 6
+                    )
+                }
+                store.load()
+            }
+            StatsScreen(store = store, onBack = {})
+        }
+
         // Een ontgrendeling nabootsen: daarna toont RootScreen het promotiescherm.
         "promo" -> {
             val mode = voorbeeldModus(werk)

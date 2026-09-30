@@ -83,6 +83,13 @@ class AppStore(app: Application) : AndroidViewModel(app) {
 
     val isScanning: Boolean get() = _scanRequest.value != null
 
+    /** Iemand tikte op een "we missen je"-melding: meteen activeren. */
+    private val _activateRequested = MutableStateFlow(false)
+    val activateRequested: StateFlow<Boolean> = _activateRequested.asStateFlow()
+
+    fun requestActivate() { _activateRequested.value = true }
+    fun consumeActivate() { _activateRequested.value = false }
+
     private val _unlockPromo = MutableStateFlow<UnlockPromo?>(null)
     val unlockPromo: StateFlow<UnlockPromo?> = _unlockPromo.asStateFlow()
 

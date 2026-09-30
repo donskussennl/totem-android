@@ -29,6 +29,7 @@ class ScheduleReceiver : BroadcastReceiver() {
                 ShieldService.restore(context)
                 ActivityScheduler.refresh(context)
                 SessionEngine.syncWithSchedule(context)
+                nl.totem.app.notify.Reminders.reschedule(context)
             }
 
             else -> {

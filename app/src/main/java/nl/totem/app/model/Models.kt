@@ -256,6 +256,25 @@ object Points {
     fun points(blockedSeconds: Long, apps: Int): Int =
         Math.round(blockedSeconds / 60.0 * apps / 10.0).toInt()
 
+    /**
+     * Punten voor één afgeronde sessie. Oude sessies van vóór de punten kennen
+     * hun aantal apps niet; dan rekenen we met de modus zoals hij nu is.
+     */
+    fun forLog(log: SessionLog, modes: List<FocusMode>): Int {
+        val apps = log.appCount
+            ?: modes.firstOrNull { it.id == log.modeID || it.name == log.modeName }?.let { apps(it) }
+            ?: 1
+        return points(log.blockedSeconds, apps)
+    }
+
+    /** Punten in de week (maandag t/m zondag) waarin [at] valt. */
+    fun week(history: List<SessionLog>, modes: List<FocusMode>, at: Long): Int {
+        val start = weekStart(at)
+        val eind = start + 7L * 24 * 60 * 60 * 1000
+        return history.filter { it.startedAt + it.duration * 1000 in start until eind }
+            .sumOf { forLog(it, modes) }
+    }
+
     /** Maandag als eerste dag van de week, zoals in Nederland. */
     fun calendar(): java.util.Calendar = java.util.Calendar.getInstance().apply {
         firstDayOfWeek = java.util.Calendar.MONDAY

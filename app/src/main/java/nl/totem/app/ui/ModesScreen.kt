@@ -46,6 +46,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -93,6 +94,17 @@ fun ModesScreen(
     val klaar = remember(meting) { ShieldService.isReady(context) }
 
     val klaarVoorGebruik = modes.filter { it.isConfigured }
+
+    // Vanuit een "we missen je"-melding: meteen activeren.
+    val activeren by store.activateRequested.collectAsStateWithLifecycle()
+    LaunchedEffect(activeren, klaarVoorGebruik.size) {
+        if (!activeren) return@LaunchedEffect
+        store.consumeActivate()
+        when {
+            klaarVoorGebruik.size == 1 -> store.startSession(klaarVoorGebruik[0])
+            klaarVoorGebruik.size > 1 -> kiezen = true
+        }
+    }
 
     Scaffold(
         topBar = {

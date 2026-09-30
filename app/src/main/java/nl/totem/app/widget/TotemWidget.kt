@@ -64,7 +64,7 @@ class TotemWidget : GlanceAppWidget() {
                             )
                         )
                         Text(
-                            text = formatElapsed(System.currentTimeMillis() - session.startedAt),
+                            text = formatElapsed(context, System.currentTimeMillis() - session.startedAt),
                             style = TextStyle(
                                 color = androidx.glance.unit.ColorProvider(Color(0xFF9E9E9E)),
                                 fontSize = 22.sp

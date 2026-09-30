@@ -40,6 +40,8 @@ object SharedStore {
     private const val KEY_SETUP_DONE = "totem.setupDone"
     private const val KEY_PROMO_INDEX = "totem.promo.index"
     private const val KEY_TIP_INDEX = "totem.promo.tip"
+    private const val KEY_LAST_USE = "totem.lastUse"
+    private const val KEY_COMEBACK_COUNT = "totem.comeback.count"
 
     val json = Json {
         ignoreUnknownKeys = true
@@ -158,6 +160,16 @@ object SharedStore {
     var tipIndex: Int
         get() = prefs.getInt(KEY_TIP_INDEX, 0)
         set(value) = prefs.edit().putInt(KEY_TIP_INDEX, value).apply()
+
+    /** Wanneer Totem voor het laatst een blokkade startte (epoch-ms). */
+    var lastUse: Long
+        get() = prefs.getLong(KEY_LAST_USE, 0L)
+        set(value) = prefs.edit().putLong(KEY_LAST_USE, value).apply()
+
+    /** Hoeveel "we missen je"-herinneringen er sinds dat moment zijn gestuurd. */
+    var comebackCount: Int
+        get() = prefs.getInt(KEY_COMEBACK_COUNT, 0)
+        set(value) = prefs.edit().putInt(KEY_COMEBACK_COUNT, value).apply()
 
     var hasOnboarded: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDED, false)

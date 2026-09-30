@@ -34,5 +34,6 @@ class TotemApplication : Application() {
         ShieldService.restore(this)
         SessionEngine.syncWithSchedule(this)
         ActivityScheduler.refresh(this)
+        nl.totem.app.notify.Reminders.reschedule(this)
     }
 }

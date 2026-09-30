@@ -96,6 +96,11 @@ class MainActivity : ComponentActivity() {
      */
     private fun verwerkTapLink(intent: Intent?) {
         if (intent == null) return
+        // Vanuit een "we missen je"-melding: meteen "Totem activeren".
+        if (intent.getBooleanExtra(nl.totem.app.notify.NotificationService.EXTRA_ACTIVATE, false)) {
+            intent.removeExtra(nl.totem.app.notify.NotificationService.EXTRA_ACTIVATE)
+            store.requestActivate()
+        }
         val uid = TapLink.uid(intent.data) ?: return
 
         // Meteen opeten. Zonder dit zou dezelfde tik opnieuw worden verwerkt
