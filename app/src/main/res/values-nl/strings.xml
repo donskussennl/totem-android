@@ -295,4 +295,11 @@
     <string name="session_running">%1$s loopt</string>
     <string name="widget_tap">Tik je Totem aan</string>
     <string name="widget_no_block">Geen blokkade</string>
+    <string name="notif_filter_label">Totem — meldingen tegenhouden</string>
+    <string name="onb_notifblock_title">Meldingen tegenhouden</string>
+    <string name="onb_notifblock_why">Zo krijg je geen meldingen van geblokkeerde apps zolang Totem actief is. Totem kijkt alleen van welke app een melding komt en veegt hem weg; er wordt niets gelezen, bewaard of verstuurd.</string>
+    <string name="onb_notifblock_where">Zet bij ‘Toegang tot meldingen’ de schakelaar bij Totem aan.</string>
+    <string name="set_notifblock_help">Houdt meldingen van geblokkeerde apps tegen zolang Totem actief is.</string>
+    <string name="home_notifblock_title">Meldingen komen nog binnen</string>
+    <string name="home_notifblock_body">Geef Totem toegang tot meldingen, dan blijven geblokkeerde apps ook stil.</string>
 </resources>

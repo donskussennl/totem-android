@@ -69,6 +69,7 @@ object ShieldService {
                 startedAt = session.startedAt
             )
         )
+        MeldingenFilter.veegOpNu()
     }
 
     /**
@@ -90,6 +91,8 @@ object ShieldService {
                 startedAt = startedAt
             )
         )
+        // Meldingen die al in het paneel staan meteen opruimen, niet pas bij de volgende.
+        MeldingenFilter.veegOpNu()
         return true
     }
 

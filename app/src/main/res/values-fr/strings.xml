@@ -295,4 +295,11 @@
     <string name="session_running">%1$s est actif</string>
     <string name="widget_tap">Tape ton Totem</string>
     <string name="widget_no_block">Aucun blocage</string>
+    <string name="notif_filter_label">Totem — bloquer les notifications</string>
+    <string name="onb_notifblock_title">Bloquer les notifications</string>
+    <string name="onb_notifblock_why">Ainsi, tu ne reçois pas de notifications des apps bloquées tant que Totem est actif. Totem regarde seulement de quelle app vient une notification et l’efface ; rien n’est lu, enregistré ni envoyé.</string>
+    <string name="onb_notifblock_where">Dans « Accès aux notifications », active l’interrupteur à côté de Totem.</string>
+    <string name="set_notifblock_help">Bloque les notifications des apps bloquées tant que Totem est actif.</string>
+    <string name="home_notifblock_title">Les notifications arrivent encore</string>
+    <string name="home_notifblock_body">Donne à Totem l’accès aux notifications et les apps bloquées resteront silencieuses.</string>
 </resources>

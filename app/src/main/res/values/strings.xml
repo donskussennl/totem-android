@@ -297,4 +297,11 @@
     <string name="session_running">%1$s is running</string>
     <string name="widget_tap">Tap your Totem</string>
     <string name="widget_no_block">No block</string>
+    <string name="notif_filter_label">Totem — hold back notifications</string>
+    <string name="onb_notifblock_title">Hold back notifications</string>
+    <string name="onb_notifblock_why">So you don’t get notifications from blocked apps while Totem is active. Totem only checks which app a notification comes from and clears it; nothing is read, stored or sent.</string>
+    <string name="onb_notifblock_where">Under ‘Notification access’, turn on the switch next to Totem.</string>
+    <string name="set_notifblock_help">Holds back notifications from blocked apps while Totem is active.</string>
+    <string name="home_notifblock_title">Notifications still come in</string>
+    <string name="home_notifblock_body">Give Totem notification access and blocked apps stay quiet too.</string>
 </resources>

@@ -295,4 +295,11 @@
     <string name="session_running">%1$s läuft</string>
     <string name="widget_tap">Tippe auf dein Totem</string>
     <string name="widget_no_block">Keine Sperre</string>
+    <string name="notif_filter_label">Totem — Mitteilungen zurückhalten</string>
+    <string name="onb_notifblock_title">Mitteilungen zurückhalten</string>
+    <string name="onb_notifblock_why">So bekommst du keine Mitteilungen von gesperrten Apps, solange Totem aktiv ist. Totem schaut nur, von welcher App eine Mitteilung kommt, und entfernt sie; nichts wird gelesen, gespeichert oder gesendet.</string>
+    <string name="onb_notifblock_where">Schalte unter „Zugriff auf Benachrichtigungen“ den Schalter bei Totem ein.</string>
+    <string name="set_notifblock_help">Hält Mitteilungen von gesperrten Apps zurück, solange Totem aktiv ist.</string>
+    <string name="home_notifblock_title">Mitteilungen kommen noch an</string>
+    <string name="home_notifblock_body">Gib Totem Zugriff auf Benachrichtigungen, dann bleiben gesperrte Apps auch still.</string>
 </resources>

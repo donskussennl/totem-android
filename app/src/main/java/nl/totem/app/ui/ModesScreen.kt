@@ -65,6 +65,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.totem.app.R
 import nl.totem.app.model.FocusMode
+import nl.totem.app.shield.MeldingenFilter
+import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.ui.graphics.vector.ImageVector
 import nl.totem.app.shield.ShieldService
 import nl.totem.app.store.AppStore
 
@@ -92,6 +95,7 @@ fun ModesScreen(
     // Elke keer opnieuw meten: de gebruiker kan net terug zijn uit de instellingen.
     val meting = terugkeerTeller()
     val klaar = remember(meting) { ShieldService.isReady(context) }
+    val meldingenFilter = remember(meting) { MeldingenFilter.isEnabled(context) }
 
     val klaarVoorGebruik = modes.filter { it.isConfigured }
 
@@ -138,7 +142,22 @@ fun ModesScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             if (!klaar) {
-                item { ToestemmingKaart(onOpen = onOpenSettings) }
+                item {
+                    ToestemmingKaart(
+                        titel = stringResource(R.string.home_permission_title),
+                        tekst = stringResource(R.string.home_permission_body),
+                        onOpen = onOpenSettings
+                    )
+                }
+            } else if (!meldingenFilter) {
+                item {
+                    ToestemmingKaart(
+                        titel = stringResource(R.string.home_notifblock_title),
+                        tekst = stringResource(R.string.home_notifblock_body),
+                        icoon = Icons.Filled.NotificationsOff,
+                        onOpen = { MeldingenFilter.openSettings(context) }
+                    )
+                }
             }
 
             items(modes, key = { it.id }) { mode ->
@@ -448,7 +467,12 @@ private fun KiesModusSheet(
 
 /** Zonder toegankelijkheid en overlay kan Totem niets blokkeren. */
 @Composable
-private fun ToestemmingKaart(onOpen: () -> Unit) {
+private fun ToestemmingKaart(
+    titel: String,
+    tekst: String,
+    icoon: ImageVector = Icons.Filled.Warning,
+    onOpen: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -458,11 +482,11 @@ private fun ToestemmingKaart(onOpen: () -> Unit) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(Icons.Filled.Warning, contentDescription = null, tint = Color(0xFFE08A00))
+        Icon(icoon, contentDescription = null, tint = Color(0xFFE08A00))
         Column(modifier = Modifier.padding(start = 12.dp)) {
-            Text(stringResource(R.string.home_permission_title), fontWeight = FontWeight.Medium)
+            Text(titel, fontWeight = FontWeight.Medium)
             Text(
-                text = stringResource(R.string.home_permission_body),
+                text = tekst,
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

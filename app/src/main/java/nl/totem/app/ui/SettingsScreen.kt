@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.totem.app.data.PinService
 import nl.totem.app.notify.NotificationService
+import nl.totem.app.shield.MeldingenFilter
 import nl.totem.app.shield.ShieldService
 import nl.totem.app.store.AppStore
 import java.text.SimpleDateFormat
@@ -79,6 +80,7 @@ fun SettingsScreen(
     val toegankelijkheid = remember(meting) { ShieldService.isAccessibilityEnabled(context) }
     val overlay = remember(meting) { ShieldService.canDrawOverlays(context) }
     val exacteWekkers = remember(meting) { ShieldService.canScheduleExactAlarms(context) }
+    val meldingenFilter = remember(meting) { MeldingenFilter.isEnabled(context) }
 
     Scaffold(
         topBar = {
@@ -120,6 +122,12 @@ fun SettingsScreen(
                 uitleg = stringResource(R.string.set_overlay_help),
                 aan = overlay,
                 onClick = { ShieldService.openOverlaySettings(context) }
+            )
+            ToestemmingRij(
+                titel = stringResource(R.string.onb_notifblock_title),
+                uitleg = stringResource(R.string.set_notifblock_help),
+                aan = meldingenFilter,
+                onClick = { MeldingenFilter.openSettings(context) }
             )
             ToestemmingRij(
                 titel = stringResource(R.string.onb_alarms_title),

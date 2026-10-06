@@ -153,6 +153,17 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
+        <!-- Veegt meldingen van geblokkeerde apps weg zolang Totem actief is. -->
+        <service
+            android:name=".shield.MeldingenFilter"
+            android:exported="true"
+            android:label="@string/notif_filter_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <!-- De doorlopende melding met de teller. -->
         <service
             android:name=".shield.SessionService"

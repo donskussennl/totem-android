@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.mutableStateOf
 import nl.totem.app.notify.NotificationService
+import nl.totem.app.shield.MeldingenFilter
 import nl.totem.app.shield.ShieldService
 
 /**
@@ -71,6 +72,7 @@ fun OnboardingScreen(
     val toegankelijkheid = remember(meting) { ShieldService.isAccessibilityEnabled(context) }
     val overlay = remember(meting) { ShieldService.canDrawOverlays(context) }
     val wekkers = remember(meting) { ShieldService.canScheduleExactAlarms(context) }
+    val meldingenFilter = remember(meting) { MeldingenFilter.isEnabled(context) }
     val meldingen = remember(meting) { NotificationService.hasPermission(context) }
 
     val klaar = toegankelijkheid && overlay
@@ -146,6 +148,17 @@ fun OnboardingScreen(
 
         Stap(
             nummer = 3,
+            titel = stringResource(R.string.onb_notifblock_title),
+            aan = meldingenFilter,
+            verplicht = false,
+            waarom = stringResource(R.string.onb_notifblock_why),
+            waar = stringResource(R.string.onb_notifblock_where),
+            knop = stringResource(R.string.onb_open_setting),
+            onClick = { MeldingenFilter.openSettings(context) }
+        )
+
+        Stap(
+            nummer = 4,
             titel = stringResource(R.string.onb_alarms_title),
             aan = wekkers,
             verplicht = false,
@@ -156,7 +169,7 @@ fun OnboardingScreen(
         )
 
         Stap(
-            nummer = 4,
+            nummer = 5,
             titel = stringResource(R.string.onb_battery_title),
             aan = null,
             verplicht = false,
@@ -168,7 +181,7 @@ fun OnboardingScreen(
 
         if (!meldingen) {
             Stap(
-                nummer = 5,
+                nummer = 6,
                 titel = stringResource(R.string.onb_notif_title),
                 aan = false,
                 verplicht = false,

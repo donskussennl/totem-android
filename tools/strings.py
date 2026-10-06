@@ -398,4 +398,32 @@ S = {
     "session_running": ('%1$s loopt', '%1$s is running', '%1$s est actif', '%1$s está activo', '%1$s läuft'),
     "widget_tap": ('Tik je Totem aan', 'Tap your Totem', 'Tape ton Totem', 'Toca tu Totem', 'Tippe auf dein Totem'),
     "widget_no_block": ('Geen blokkade', 'No block', 'Aucun blocage', 'Sin bloqueo', 'Keine Sperre'),
+    # --- Meldingen van geblokkeerde apps -------------------------------------
+    "notif_filter_label": ("Totem — meldingen tegenhouden", "Totem — hold back notifications", "Totem — bloquer les notifications", "Totem — bloquear notificaciones", "Totem — Mitteilungen zurückhalten"),
+    "onb_notifblock_title": ("Meldingen tegenhouden", "Hold back notifications", "Bloquer les notifications", "Bloquear notificaciones", "Mitteilungen zurückhalten"),
+    "onb_notifblock_why": (
+        "Zo krijg je geen meldingen van geblokkeerde apps zolang Totem actief is. Totem kijkt alleen van welke app een melding komt en veegt hem weg; er wordt niets gelezen, bewaard of verstuurd.",
+        "So you don’t get notifications from blocked apps while Totem is active. Totem only checks which app a notification comes from and clears it; nothing is read, stored or sent.",
+        "Ainsi, tu ne reçois pas de notifications des apps bloquées tant que Totem est actif. Totem regarde seulement de quelle app vient une notification et l’efface ; rien n’est lu, enregistré ni envoyé.",
+        "Así no recibes notificaciones de las apps bloqueadas mientras Totem está activo. Totem solo mira de qué app viene una notificación y la quita; no se lee, guarda ni envía nada.",
+        "So bekommst du keine Mitteilungen von gesperrten Apps, solange Totem aktiv ist. Totem schaut nur, von welcher App eine Mitteilung kommt, und entfernt sie; nichts wird gelesen, gespeichert oder gesendet."),
+    "onb_notifblock_where": (
+        "Zet bij ‘Toegang tot meldingen’ de schakelaar bij Totem aan.",
+        "Under ‘Notification access’, turn on the switch next to Totem.",
+        "Dans « Accès aux notifications », active l’interrupteur à côté de Totem.",
+        "En «Acceso a notificaciones», activa el interruptor junto a Totem.",
+        "Schalte unter „Zugriff auf Benachrichtigungen“ den Schalter bei Totem ein."),
+    "set_notifblock_help": (
+        "Houdt meldingen van geblokkeerde apps tegen zolang Totem actief is.",
+        "Holds back notifications from blocked apps while Totem is active.",
+        "Bloque les notifications des apps bloquées tant que Totem est actif.",
+        "Bloquea las notificaciones de las apps bloqueadas mientras Totem está activo.",
+        "Hält Mitteilungen von gesperrten Apps zurück, solange Totem aktiv ist."),
+    "home_notifblock_title": ("Meldingen komen nog binnen", "Notifications still come in", "Les notifications arrivent encore", "Las notificaciones siguen llegando", "Mitteilungen kommen noch an"),
+    "home_notifblock_body": (
+        "Geef Totem toegang tot meldingen, dan blijven geblokkeerde apps ook stil.",
+        "Give Totem notification access and blocked apps stay quiet too.",
+        "Donne à Totem l’accès aux notifications et les apps bloquées resteront silencieuses.",
+        "Da a Totem acceso a las notificaciones y las apps bloqueadas también se quedarán en silencio.",
+        "Gib Totem Zugriff auf Benachrichtigungen, dann bleiben gesperrte Apps auch still."),
 }
