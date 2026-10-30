@@ -18,7 +18,9 @@ object TagMemory {
     private const val WANTED = 144
 
     fun read(tag: Tag): ByteArray? {
-        MifareUltralight.get(tag)?.let { return readUltralight(it) }
+        // Lukt Ultralight niet, dan alsnog via NfcA: niet elke NFC-chip in een
+        // telefoon kan met de Ultralight-klasse overweg.
+        MifareUltralight.get(tag)?.let { tech -> readUltralight(tech)?.let { return it } }
         NfcA.get(tag)?.let { return readNfcA(it) }
         return null
     }

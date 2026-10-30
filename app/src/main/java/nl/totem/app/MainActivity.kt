@@ -1,7 +1,11 @@
 package nl.totem.app
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.nfc.NfcAdapter
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,6 +13,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import nl.totem.app.nfc.NfcService
 import nl.totem.app.nfc.TapLink
 import nl.totem.app.store.AppStore
@@ -43,6 +52,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         nfc = NfcService(this)
+
+        // Elke keer dat er om een tik gevraagd wordt, de lezer opnieuw
+        // aanzetten. Normaal staat hij al aan, maar niet als NFC uit stond
+        // toen we op de voorgrond kwamen: dan wacht het scanvenster anders op
+        // een lezer die er niet is, en gebeurt er bij een tik helemaal niets.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                store.scanRequest.collect { if (it != null) zetLezerAan() }
+            }
+        }
 
         verwerkTapLink(intent)
         vraagMeldingtoestemming()
@@ -80,10 +99,15 @@ class MainActivity : ComponentActivity() {
             store.onAppear()
             return
         }
-        nfc.start { result ->
-            android.util.Log.i(NfcService.TAG, "MainActivity kreeg een tik binnen")
-            store.onTagRead(result.map { lezing -> lezing.uid to lezing.payload })
-        }
+        zetLezerAan()
+
+        // NFC aan- of uitzetten via het snelmenu pauzeert de activiteit niet,
+        // dus onResume komt dan niet langs. Zonder deze ontvanger blijft de
+        // lezer uit nadat je NFC hebt aangezet.
+        ContextCompat.registerReceiver(
+            this, nfcAanUit, IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         // Terug uit de systeeminstellingen: opnieuw kijken hoe alles ervoor staat.
         store.onAppear()
@@ -91,8 +115,24 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
+        runCatching { unregisterReceiver(nfcAanUit) }
         // Buiten de voorgrond mogen we de lezer niet claimen.
         nfc.stop()
+    }
+
+    private val nfcAanUit = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val staat = intent.getIntExtra(NfcAdapter.EXTRA_ADAPTER_STATE, NfcAdapter.STATE_OFF)
+            android.util.Log.i(NfcService.TAG, "NFC-status veranderd: $staat")
+            if (staat == NfcAdapter.STATE_ON) zetLezerAan()
+        }
+    }
+
+    private fun zetLezerAan() {
+        nfc.start { result ->
+            android.util.Log.i(NfcService.TAG, "MainActivity kreeg een tik binnen")
+            store.onTagRead(result.map { lezing -> lezing.uid to lezing.payload })
+        }
     }
 
     /**
