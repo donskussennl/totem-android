@@ -61,12 +61,7 @@ object TapLink {
                 if (parts.size < 3) return null
                 val tag = normalize(parts[2])
                 if (!isValidTag(tag)) return null
-                // Alles na de UID hoort bij de handtekening, inclusief de `/`
-                // die base64 zelf produceert.
-                val signature = if (parts.size > 3) {
-                    parts.subList(3, parts.size).joinToString("/")
-                } else null
-                Scan(parts[1].uppercase(), tag, signature)
+                Scan(parts[1].uppercase(), tag, signatureAfter(uri.path, parts[2]))
             }
 
             "t" -> {
@@ -97,6 +92,20 @@ object TapLink {
     /** Het adres dat je op de tag schrijft. */
     fun url(forTag: String): String =
         "https://app.tap2totem.com/t/${forTag.uppercase()}"
+
+    /**
+     * Alles na de UID hoort bij de handtekening, inclusief de `/` die base64
+     * zelf produceert. Bewust uit het letterlijke pad en niet uit
+     * `pathSegments`: dat laat lege stukken weg, waardoor `//` in de
+     * handtekening één `/` wordt en een `/` aan het eind verdwijnt. Dan is de
+     * handtekening te kort en wordt een echte Totem geweigerd.
+     */
+    internal fun signatureAfter(path: String?, tagSegment: String): String? {
+        val segments = path?.split("/") ?: return null
+        val i = segments.indexOf(tagSegment)
+        if (i < 0 || i + 1 >= segments.size) return null
+        return segments.subList(i + 1, segments.size).joinToString("/").ifEmpty { null }
+    }
 
     private fun normalize(raw: String): String =
         raw.replace(":", "").replace("-", "").replace(" ", "").uppercase()
