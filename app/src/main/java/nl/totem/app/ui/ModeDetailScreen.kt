@@ -59,6 +59,7 @@ fun ModeDetailScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
     val modes by store.modes.collectAsStateWithLifecycle()
     val session by store.session.collectAsStateWithLifecycle()
+    val model by store.lastModel.collectAsStateWithLifecycle()
     val noodOver by store.emergencyRemaining.collectAsStateWithLifecycle()
     val mode = modes.firstOrNull { it.id == modeID } ?: return
 
@@ -208,7 +209,7 @@ fun ModeDetailScreen(
             ) {
                 Image(
                     painter = painterResource(
-                        if (isActive) R.drawable.totem_dark else R.drawable.totem_light
+                        if (isActive) model.darkImage else model.lightImage
                     ),
                     contentDescription = null,
                     modifier = Modifier.height(236.dp)

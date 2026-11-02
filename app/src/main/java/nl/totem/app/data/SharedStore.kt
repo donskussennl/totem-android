@@ -8,6 +8,7 @@ import nl.totem.app.model.ActiveSession
 import nl.totem.app.model.FocusMode
 import nl.totem.app.model.PairedTotem
 import nl.totem.app.model.SessionLog
+import nl.totem.app.model.TotemModel
 
 /**
  * De opslag van Totem, op één plek.
@@ -42,6 +43,7 @@ object SharedStore {
     private const val KEY_TIP_INDEX = "totem.promo.tip"
     private const val KEY_LAST_USE = "totem.lastUse"
     private const val KEY_COMEBACK_COUNT = "totem.comeback.count"
+    private const val KEY_LAST_MODEL = "totem.lastModel"
 
     val json = Json {
         ignoreUnknownKeys = true
@@ -170,6 +172,12 @@ object SharedStore {
     var comebackCount: Int
         get() = prefs.getInt(KEY_COMEBACK_COUNT, 0)
         set(value) = prefs.edit().putInt(KEY_COMEBACK_COUNT, value).apply()
+
+    /** Het model van de laatst gescande Totem; bepaalt welke afbeelding de app toont. */
+    var lastModel: TotemModel
+        get() = prefs.getString(KEY_LAST_MODEL, null)
+            ?.let { runCatching { TotemModel.valueOf(it) }.getOrNull() } ?: TotemModel.STANDAARD
+        set(value) = prefs.edit().putString(KEY_LAST_MODEL, value.name).apply()
 
     var hasOnboarded: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDED, false)

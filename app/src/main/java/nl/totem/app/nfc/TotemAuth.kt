@@ -53,11 +53,19 @@ object TotemAuth {
      * @param uid hardware-UID van de chip, zoals de NfcAdapter hem teruggeeft
      * @param payload bytes uit het taggeheugen vanaf pagina 4
      */
-    fun isGenuine(uid: ByteArray, payload: ByteArray?): Boolean {
+    fun isGenuine(uid: ByteArray, payload: ByteArray?): Boolean =
+        genuineScan(uid, payload) != null
+
+    /**
+     * Zelfde controle als [isGenuine], maar geeft bij een echte Totem de
+     * gecontroleerde inhoud van de tag terug. Alleen daaruit mag je het
+     * artikelnummer halen: dat is dan door de handtekening gedekt.
+     */
+    fun genuineScan(uid: ByteArray, payload: ByteArray?): TapLink.Scan? {
         val uri = ndefUri(payload)
         if (uri == null) {
             Log.w(TAG, "geen leesbare NDEF-URL op de tag")
-            return false
+            return null
         }
 
         Log.i(TAG, "URL van de tag: $uri")
@@ -65,20 +73,20 @@ object TotemAuth {
         val scan = TapLink.scan(uri)
         if (scan == null) {
             Log.w(TAG, "URL hoort niet bij Totem: $uri")
-            return false
+            return null
         }
 
         // Staat deze URL wel op de chip waarvoor hij gemaakt is?
         if (hex(uid) != scan.tagUid) {
             Log.w(TAG, "UID komt niet overeen: chip ${hex(uid)}, URL ${scan.tagUid}")
-            return false
+            return null
         }
 
         val itemCode = scan.itemCode
         val signature = scan.signature
         if (itemCode == null || signature == null) {
             Log.w(TAG, "artikelnummer of handtekening ontbreekt in de URL")
-            return false
+            return null
         }
 
         val bytes = decodeBase64(signature)
@@ -86,9 +94,11 @@ object TotemAuth {
         Log.i(TAG, "handtekening: $signature")
         Log.i(TAG, "bericht: '$itemCode${scan.tagUid}' -> ${bytes?.size ?: -1} bytes handtekening")
 
-        val ok = verify(itemCode, scan.tagUid, signature)
-        if (!ok) Log.w(TAG, "handtekening ongeldig voor $itemCode/${scan.tagUid}")
-        return ok
+        if (!verify(itemCode, scan.tagUid, signature)) {
+            Log.w(TAG, "handtekening ongeldig voor $itemCode/${scan.tagUid}")
+            return null
+        }
+        return scan
     }
 
     /** Controleert de handtekening over `itemCode + tagUid`. */
@@ -170,7 +180,8 @@ object TotemAuth {
      * Daarom eerst zelf normaliseren en dan met het standaard alfabet lezen.
      */
     private fun decodeBase64(text: String): ByteArray? {
-        var s = text.trim().replace('-', '+').replace('_', '/')
+        // Een spatie is een `+` die onderweg als queryparameter is gedecodeerd.
+        var s = text.trim().replace(' ', '+').replace('-', '+').replace('_', '/')
         val remainder = s.length % 4
         if (remainder > 0) s += "=".repeat(4 - remainder)
         return runCatching { Base64.decode(s, Base64.DEFAULT) }

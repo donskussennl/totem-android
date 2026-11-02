@@ -30,6 +30,36 @@ data class PairedTotem(
 }
 
 /**
+ * Welk soort Totem er gescand is. Staat in de laatste twee tekens van het
+ * artikelnummer op de tag (`07JU000110`), en valt dus onder de handtekening:
+ * een gewone Totem kan zich niet als Travel voordoen of andersom.
+ *
+ * Volgt `versions_and_colors.json` in totem_production: `01` is de Totem (elke
+ * kleur), `1x` de coin, oftewel de Travel (`10` wit-blauw, `11` roségoud-zwart).
+ * Een nieuwe coinkleur werkt zo zonder app-update. Zelfde regel als op iOS.
+ */
+enum class TotemModel {
+    STANDAARD, TRAVEL;
+
+    /** Afbeelding op een lichte achtergrond (niet actief). */
+    val lightImage: Int
+        get() = if (this == TRAVEL) nl.totem.app.R.drawable.travel_light else nl.totem.app.R.drawable.totem_light
+
+    /** Afbeelding op de donkere achtergrond terwijl een blokkade loopt. */
+    val darkImage: Int
+        get() = if (this == TRAVEL) nl.totem.app.R.drawable.travel_dark else nl.totem.app.R.drawable.totem_dark
+
+    companion object {
+        fun from(itemCode: String?): TotemModel {
+            val version = itemCode?.takeLast(2) ?: ""
+            // Alles wat we nog niet kennen: een nieuwer product op een oudere
+            // app ziet er dan uit als een gewone Totem in plaats van niets.
+            return if (version.length == 2 && version.startsWith("1")) TRAVEL else STANDAARD
+        }
+    }
+}
+
+/**
  * Wanneer een geplande blokkade ophoudt.
  *
  * Op iOS was dit een enum met een associated value; in Kotlin doen we dat met

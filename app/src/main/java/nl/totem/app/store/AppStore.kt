@@ -20,6 +20,7 @@ import nl.totem.app.model.ScheduleEnd
 import nl.totem.app.model.PairedTotem
 import nl.totem.app.model.SessionLog
 import nl.totem.app.model.TotemError
+import nl.totem.app.model.TotemModel
 import nl.totem.app.nfc.TotemAuth
 import nl.totem.app.schedule.ActivityScheduler
 import nl.totem.app.schedule.SessionEngine
@@ -55,6 +56,13 @@ class AppStore(app: Application) : AndroidViewModel(app) {
 
     private val _totem = MutableStateFlow<PairedTotem?>(null)
     val totem: StateFlow<PairedTotem?> = _totem.asStateFlow()
+
+    /**
+     * De Totem die het laatst gescand is. Bepaalt welke afbeelding de app
+     * overal laat zien, ook na deactiveren, tot er een ander model gescand wordt.
+     */
+    private val _lastModel = MutableStateFlow(TotemModel.STANDAARD)
+    val lastModel: StateFlow<TotemModel> = _lastModel.asStateFlow()
 
     private val _modes = MutableStateFlow<List<FocusMode>>(emptyList())
     val modes: StateFlow<List<FocusMode>> = _modes.asStateFlow()
@@ -167,6 +175,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         if (_session.value != null) SessionEngine.stop(context, bySchedule = false)
         _totem.value = null
         SharedStore.totem = null
+        onthoudModel(TotemModel.STANDAARD)
     }
 
     // MARK: - Eerste keer instellen
@@ -478,10 +487,12 @@ class AppStore(app: Application) : AndroidViewModel(app) {
             uid.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
         }.getOrDefault(ByteArray(0))
 
-        if (!TotemAuth.isGenuine(uidBytes, payload)) {
+        val scan = TotemAuth.genuineScan(uidBytes, payload)
+        if (scan == null) {
             _errorMessage.value = context.getString(R.string.err_wrong_tag)
             return
         }
+        onthoudModel(TotemModel.from(scan.itemCode))
         savePaired(uid, name.ifBlank { context.getString(R.string.my_totem) })
     }
 
@@ -524,9 +535,19 @@ class AppStore(app: Application) : AndroidViewModel(app) {
             uid.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
         }.getOrDefault(ByteArray(0))
 
-        if (TotemAuth.isGenuine(uidBytes, payload)) return true
+        val scan = TotemAuth.genuineScan(uidBytes, payload)
+        if (scan != null) {
+            onthoudModel(TotemModel.from(scan.itemCode))
+            return true
+        }
         _errorMessage.value = context.getString(R.string.err_not_totem)
         return false
+    }
+
+    /** Elke geslaagde scan onthoudt welk model het was. */
+    private fun onthoudModel(model: TotemModel) {
+        _lastModel.value = model
+        SharedStore.lastModel = model
     }
 
     // MARK: - Ontdooien
@@ -622,6 +643,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         // herstart van de app terugspringen.
         refreshEmergencyPeriod()
         _totem.value = SharedStore.totem
+        _lastModel.value = SharedStore.lastModel
         _modes.value = SharedStore.modes
         _session.value = SharedStore.session
         _history.value = SharedStore.history
