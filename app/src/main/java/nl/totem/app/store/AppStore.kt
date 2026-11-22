@@ -158,6 +158,7 @@ class AppStore(app: Application) : AndroidViewModel(app) {
                 name = "Demo Totem",
                 pairedAt = System.currentTimeMillis(),
                 isDemo = true,
+                model = TotemModel.STANDAARD,
             )
             _totem.value = demo
             SharedStore.totem = demo
@@ -492,16 +493,19 @@ class AppStore(app: Application) : AndroidViewModel(app) {
             _errorMessage.value = context.getString(R.string.err_wrong_tag)
             return
         }
-        onthoudModel(TotemModel.from(scan.itemCode))
-        savePaired(uid, name.ifBlank { context.getString(R.string.my_totem) })
+        val model = TotemModel.from(scan.itemCode)
+        onthoudModel(model)
+        savePaired(uid, name.ifBlank { context.getString(R.string.my_totem) }, model)
     }
 
     fun cancelScan() {
         _scanRequest.value = null
     }
 
-    private fun savePaired(uid: String, name: String) {
-        val paired = PairedTotem(tagUID = uid, name = name, pairedAt = System.currentTimeMillis())
+    private fun savePaired(uid: String, name: String, model: TotemModel) {
+        val paired = PairedTotem(
+            tagUID = uid, name = name, pairedAt = System.currentTimeMillis(), model = model
+        )
         _totem.value = paired
         SharedStore.totem = paired
     }
@@ -642,6 +646,12 @@ class AppStore(app: Application) : AndroidViewModel(app) {
         // doordat de blokkadedienst draait, en dan zou de teller pas bij een
         // herstart van de app terugspringen.
         refreshEmergencyPeriod()
+        // Koppelingen van voor 1.2.3 weten hun kleur nog niet. Toen toonde de
+        // app het laatst gescande model; dat leggen we eenmalig vast, zodat er
+        // na de update niets verspringt.
+        SharedStore.totem?.let { t ->
+            if (t.model == null) SharedStore.totem = t.copy(model = SharedStore.lastModel)
+        }
         _totem.value = SharedStore.totem
         _lastModel.value = SharedStore.lastModel
         _modes.value = SharedStore.modes

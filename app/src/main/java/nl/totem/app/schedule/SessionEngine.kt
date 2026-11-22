@@ -90,7 +90,11 @@ object SessionEngine {
         val session = ActiveSession(
             modeID = mode.id,
             startedAt = startedAt,
-            startedBySchedule = bySchedule
+            startedBySchedule = bySchedule,
+            // Met de hand gestart: de Totem die je net tegen je telefoon hield.
+            // Door een schema: er is niets gescand, dus je eigen Totem.
+            totemModel = if (bySchedule) SharedStore.totem?.model ?: SharedStore.lastModel
+                         else SharedStore.lastModel
         )
         SharedStore.session = session
         // Gebruikt: de "we missen je"-herinneringen beginnen opnieuw te tellen.

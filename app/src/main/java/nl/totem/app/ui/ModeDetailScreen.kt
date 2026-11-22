@@ -59,7 +59,8 @@ fun ModeDetailScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
     val modes by store.modes.collectAsStateWithLifecycle()
     val session by store.session.collectAsStateWithLifecycle()
-    val model by store.lastModel.collectAsStateWithLifecycle()
+    val lastModel by store.lastModel.collectAsStateWithLifecycle()
+    val totem by store.totem.collectAsStateWithLifecycle()
     val noodOver by store.emergencyRemaining.collectAsStateWithLifecycle()
     val mode = modes.firstOrNull { it.id == modeID } ?: return
 
@@ -207,9 +208,13 @@ fun ModeDetailScreen(
                     },
                 contentAlignment = Alignment.BottomCenter
             ) {
+                // Buiten een blokkade je eigen Totem; tijdens een blokkade de
+                // Totem die hem startte.
+                val eigen = totem?.model ?: lastModel
                 Image(
                     painter = painterResource(
-                        if (isActive) model.darkImage else model.lightImage
+                        if (isActive) (session?.totemModel ?: eigen).darkImage
+                        else eigen.lightImage
                     ),
                     contentDescription = null,
                     modifier = Modifier.height(236.dp)

@@ -1,6 +1,7 @@
 package nl.totem.app.model
 
 import kotlinx.serialization.SerialName
+import nl.totem.app.R
 import kotlinx.serialization.Serializable
 import java.util.UUID
 
@@ -14,7 +15,13 @@ data class PairedTotem(
     /** Epoch-milliseconden; op Android bewaren we tijden als Long. */
     val pairedAt: Long,
     /** Gekoppeld met het codewoord, zonder echte tag. Zie DEMO_CODE. */
-    val isDemo: Boolean = false
+    val isDemo: Boolean = false,
+    /**
+     * Welke Totem er bij het koppelen gescand is. Deze afbeelding toont de app
+     * altijd buiten een blokkade. Null bij koppelingen van voor versie 1.2.3;
+     * die vult [nl.totem.app.store.AppStore.load] eenmalig aan.
+     */
+    val model: TotemModel? = null
 ) {
     val shortUID: String
         get() = if (tagUID.length > 8) tagUID.take(8) + "…" else tagUID
@@ -32,26 +39,37 @@ data class PairedTotem(
 /**
  * Welk soort Totem er gescand is. Staat in de laatste twee tekens van het
  * artikelnummer op de tag (`07JU000110`), en valt dus onder de handtekening:
- * een gewone Totem kan zich niet als Travel voordoen of andersom.
+ * een gewone Totem kan zich niet als Travel of Latte brown voordoen.
  *
- * Volgt `versions_and_colors.json` in totem_production: `01` is de Totem (elke
- * kleur), `1x` de coin, oftewel de Travel (`10` wit-blauw, `11` roségoud-zwart).
- * Een nieuwe coinkleur werkt zo zonder app-update. Zelfde regel als op iOS.
+ * Volgt `versions_and_colors.json` in totem_production:
+ *  - `01` de Totem in grijs (`#757575`)
+ *  - `02` de Totem in Latte brown (`#D3B7A7`)
+ *  - `1x` de coin, oftewel de Travel (`10` wit-blauw, `11` roségoud-zwart)
+ *
+ * Een nieuwe coinkleur werkt zo zonder app-update, en een onbekende versie
+ * valt terug op de grijze Totem. Zelfde regel als op iOS.
+ *
+ * Een kleur erbij? Regel in versions_and_colors.json, dan
+ * `uv run kleuren/render_kleuren.py` in totem_production, en hier één regel.
+ * De naam van een regel is wat de app opslaat: nooit hernoemen.
  */
-enum class TotemModel {
-    STANDAARD, TRAVEL;
-
+@Serializable
+enum class TotemModel(
+    /** Versie op de tag; null voor de Travel, die alle `1x` dekt. */
+    private val version: String?,
     /** Afbeelding op een lichte achtergrond (niet actief). */
-    val lightImage: Int
-        get() = if (this == TRAVEL) nl.totem.app.R.drawable.travel_light else nl.totem.app.R.drawable.totem_light
-
+    val lightImage: Int,
     /** Afbeelding op de donkere achtergrond terwijl een blokkade loopt. */
-    val darkImage: Int
-        get() = if (this == TRAVEL) nl.totem.app.R.drawable.travel_dark else nl.totem.app.R.drawable.totem_dark
+    val darkImage: Int,
+) {
+    STANDAARD("01", R.drawable.totem_light, R.drawable.totem_dark),
+    LATTE_BROWN("02", R.drawable.lattebrown_light, R.drawable.lattebrown_dark),
+    TRAVEL(null, R.drawable.travel_light, R.drawable.travel_dark);
 
     companion object {
         fun from(itemCode: String?): TotemModel {
             val version = itemCode?.takeLast(2) ?: ""
+            entries.firstOrNull { it.version == version }?.let { return it }
             // Alles wat we nog niet kennen: een nieuwer product op een oudere
             // app ziet er dan uit als een gewone Totem in plaats van niets.
             return if (version.length == 2 && version.startsWith("1")) TRAVEL else STANDAARD
@@ -201,7 +219,12 @@ data class ActiveSession(
     /** Wanneer de lopende pauze begon. */
     val pauseStartedAt: Long? = null,
     /** Hoe lang er in totaal ontdooid is geweest, in ms. Telt niet mee voor punten. */
-    val pausedTotal: Long = 0L
+    val pausedTotal: Long = 0L,
+    /**
+     * De Totem die deze blokkade startte; die toont het blokkadescherm. Bij
+     * een schema is dat de gekoppelde Totem.
+     */
+    val totemModel: TotemModel? = null
 ) {
     fun isPaused(nu: Long = System.currentTimeMillis()): Boolean =
         pausedUntil != null && pausedUntil > nu
